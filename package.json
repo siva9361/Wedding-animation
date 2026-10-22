@@ -1,0 +1,35 @@
+{
+  "name": "the-eternal-vow",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun --bun next dev --hostname 127.0.0.1",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start --hostname 127.0.0.1",
+    "typecheck": "bun --bun tsc --noEmit",
+    "lint": "bun --bun eslint .",
+    "test": "bun run test:e2e",
+    "test:e2e": "bun build ./tests/browser/invitation.spec.ts --target node --format cjs --outdir .qa/browser-tests --external @playwright/test && bun --bun playwright test",
+    "format": "bun --bun prettier --write ."
+  },
+  "dependencies": {
+    "lucide-react": "1.61.0",
+    "next": "16.4.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/bun": "1.4.3",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.2",
+    "prettier": "3.9.10",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "sharp": "0.35.5"
+  }
+}

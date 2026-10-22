@@ -1,0 +1,1330 @@
+@import "tailwindcss";
+@theme inline {
+  --color-burgundy: #581f31;
+  --color-ivory: #fbf6e9;
+  --font-sans: var(--font-body);
+}
+:root {
+  --wine: #581f31;
+  --deep: #230b12;
+  --paper: #fbf6e9;
+  --gold: #bd9658;
+  --muted: #82715b;
+  --rule: #b893533b;
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 25px;
+}
+body {
+  margin: 0;
+  background: #e9dfcb;
+  color: var(--wine);
+  font-family: var(--font-tamil), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 0;
+}
+button:disabled {
+  cursor: wait;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 6px;
+}
+a {
+  color: inherit;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h1,
+h2,
+h3 {
+  font-weight: 400;
+}
+img {
+  object-fit: cover;
+}
+svg {
+  flex-shrink: 0;
+}
+::selection {
+  background: var(--wine);
+  color: var(--paper);
+}
+.royal-shell {
+  min-height: 100svh;
+}
+.invitation-stage .hero-heading {
+  transition:
+    opacity 1.5s ease,
+    transform 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.invitation-stage[data-opening="true"] .hero-heading {
+  opacity: 0.15;
+  transform: translateY(16px);
+}
+[data-reveal] {
+  transition:
+    opacity 1.2s ease,
+    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+[data-reveal="pending"] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+}
+[data-reveal="shown"],
+[data-reveal]:focus-within {
+  opacity: 1;
+  transform: none;
+}
+.royal-invitation {
+  max-width: 1440px;
+  margin: 0 auto;
+  background: var(--paper);
+  overflow: clip;
+  box-shadow: 0 0 70px #583f2415;
+}
+.eyebrow {
+  font-family: var(--font-body), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.23em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+.section-title {
+  font-family: var(--font-display), serif;
+  font-size: clamp(48px, 5.5vw, 78px);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+}
+.royal-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--gold);
+  margin: 25px auto;
+}
+.royal-divider > span {
+  height: 1px;
+  width: 55px;
+  background: currentColor;
+  opacity: 0.65;
+}
+.royal-divider svg {
+  width: 36px;
+  height: 22px;
+}
+.divider-light {
+  color: #ddbd7d;
+}
+.toran {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  max-height: 100px;
+  pointer-events: none;
+  z-index: 2;
+}
+.floating-replay {
+  position: fixed;
+  z-index: 35;
+  top: 18px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #b9985c69;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fffcf0e8;
+  color: #795428;
+  box-shadow: 0 3px 14px #29180e16;
+  backdrop-filter: blur(5px);
+}
+/* The full-height entrance is framed like the temple doorway in the reel. */
+.gate-world {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  perspective: 1600px;
+}
+.gate-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 55%, #5b1b24 0%, #290d14 58%, #18090c 100%);
+  transition: opacity calc(var(--opening-duration) * 0.55) ease calc(var(--opening-duration) * 0.2);
+}
+.gate-opening .gate-backdrop {
+  opacity: 0;
+}
+.gate-world::before,
+.gate-world::after {
+  content: "";
+  position: absolute;
+  top: 4%;
+  bottom: 4%;
+  width: 1px;
+  background: linear-gradient(transparent, #bc8b4c66, transparent);
+}
+.gate-world::before {
+  left: 8%;
+}
+.gate-world::after {
+  right: 8%;
+}
+.gate-scene {
+  height: 100svh;
+  width: min(100vw, calc(100svh * 0.67));
+  position: relative;
+  margin: 0 auto;
+  perspective: 1600px;
+  box-shadow: 0 0 100px #0009;
+  transition: box-shadow calc(var(--opening-duration) * 0.65) ease;
+}
+.gate-opening .gate-scene {
+  box-shadow: 0 0 100px #0000;
+}
+.gate-door {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 2;
+  backface-visibility: hidden;
+  transition:
+    transform calc(var(--opening-duration) * 0.85) cubic-bezier(0.45, 0, 0.15, 1)
+      calc(var(--opening-duration) * 0.08),
+    opacity calc(var(--opening-duration) * 0.22) ease calc(var(--opening-duration) * 0.7);
+  will-change: transform;
+}
+.gate-door-left {
+  left: 0;
+  transform-origin: left center;
+}
+.gate-door-right {
+  right: 0;
+  transform-origin: right center;
+}
+.gate-art {
+  position: absolute;
+  top: 0;
+  width: 200%;
+  height: 100%;
+}
+.gate-art img {
+  object-fit: fill;
+}
+.gate-door-left .gate-art {
+  left: 0;
+}
+.gate-door-right .gate-art {
+  left: -100%;
+}
+.gate-copy {
+  position: absolute;
+  z-index: 3;
+  top: 37%;
+  left: 17%;
+  right: 17%;
+  text-align: center;
+  color: #fff6e0;
+  transition:
+    opacity 0.85s ease,
+    transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gate-copy .royal-divider {
+  margin: 0 auto 24px;
+  gap: 8px;
+}
+.gate-copy .royal-divider svg {
+  width: 21px;
+}
+.gate-copy .royal-divider > span {
+  width: 45px;
+}
+.gate-copy > .eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: #e9d4af;
+}
+.gate-copy h1 {
+  font-family: var(--font-display), serif;
+  font-weight: 500;
+  font-size: clamp(30px, 8vw, 46px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-top: 20px;
+  white-space: nowrap;
+  text-shadow: 0 2px 14px #10000099;
+}
+.gate-subtitle {
+  font-family: var(--font-display), serif;
+  font-size: 25px;
+  color: #e6c278;
+  margin-top: 8px;
+}
+.gate-tamil {
+  font-size: 11px;
+  line-height: 2;
+  color: #d8be91;
+  margin-top: 12px;
+}
+.gate-date {
+  font-family: var(--font-body), sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 25px;
+  color: #ebd098;
+}
+.open-invitation {
+  width: 100%;
+  min-height: 49px;
+  border-radius: 40px;
+  background: #fff6de;
+  color: #75522b;
+  border: 1px solid #e8d09a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 27px;
+  padding: 15px 12px;
+  box-shadow: 0 0 20px #d1a96e24;
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
+}
+.open-invitation span {
+  font-family: var(--font-body), sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.open-invitation:hover:not(:disabled) {
+  background: #f6d99f;
+  box-shadow: 0 0 35px #d1a96e4a;
+}
+.gate-couple {
+  font-family: var(--font-display), serif;
+  font-style: italic;
+  font-size: 21px;
+  line-height: 1.5;
+  margin-top: 22px;
+  color: #e6cca5;
+}
+.gate-side-mark {
+  position: absolute;
+  top: 43%;
+  left: calc(50% - 520px);
+  color: #b28b56;
+  text-align: center;
+}
+.gate-side-mark > span {
+  font-family: var(--font-display), serif;
+  font-style: italic;
+  font-size: 65px;
+}
+.gate-side-mark > p {
+  font-family: var(--font-body), sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  margin-top: 15px;
+}
+.gate-outside-date {
+  position: absolute;
+  right: calc(50% - 490px);
+  top: 50%;
+  font-family: var(--font-body), sans-serif;
+  writing-mode: vertical-rl;
+  font-size: 9px;
+  letter-spacing: 0.19em;
+  color: #b28b56;
+  text-transform: uppercase;
+}
+.gate-opening .gate-door-left {
+  transform: rotateY(-100deg);
+  opacity: 0;
+}
+.gate-opening .gate-door-right {
+  transform: rotateY(100deg);
+  opacity: 0;
+}
+.gate-opening .gate-copy {
+  opacity: 0;
+  transform: translateY(-15px);
+  pointer-events: none;
+}
+.gate-opening {
+  animation: gate-exit calc(var(--opening-duration) * 0.22) ease
+    calc(var(--opening-duration) * 0.78) forwards;
+}
+@keyframes gate-exit {
+  to {
+    opacity: 0;
+  }
+}
+/* The interior opens into the same ivory, gold and temple-art composition. */
+.royal-hero {
+  height: 100svh;
+  min-height: 820px;
+  max-height: 1050px;
+  position: relative;
+  isolation: isolate;
+  text-align: center;
+  background: #fcf5e5;
+}
+.hero-art {
+  position: absolute;
+  inset: 0;
+  max-width: 900px;
+  margin: 0 auto;
+  z-index: -1;
+}
+.hero-art img {
+  object-fit: fill;
+}
+.hero-heading {
+  padding: 55px 12% 0;
+  position: relative;
+  z-index: 1;
+}
+.hero-blessing {
+  font-size: 11px;
+  color: #8b744c;
+  line-height: 2;
+  max-width: 550px;
+  margin: auto;
+}
+.royal-names {
+  font-family: var(--font-display), serif;
+  font-size: clamp(70px, 7.5vw, 108px);
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  margin: 27px auto 0;
+  max-width: 620px;
+}
+.royal-names:focus {
+  outline: none;
+}
+.royal-names > span {
+  display: block;
+}
+.royal-names > em {
+  display: block;
+  font-family: var(--font-display), serif;
+  font-size: 39px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #aa824d;
+  letter-spacing: 0;
+}
+.hero-tamil-names {
+  font-size: 15px;
+  line-height: 2;
+  margin-top: 24px;
+}
+.hero-tamil-names > span {
+  font-family: var(--font-display), serif;
+  font-size: 23px;
+  color: var(--gold);
+  padding: 0 9px;
+}
+.hero-date {
+  font-family: var(--font-body), sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  margin-top: 15px;
+  color: #8b744c;
+}
+.royal-countdown {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 25px;
+}
+.royal-countdown > div {
+  min-width: 65px;
+  border: 1px solid #cdb68d45;
+  background: #fffcf3ce;
+  border-radius: 8px;
+  padding: 9px 12px;
+  box-shadow: 0 5px 16px #5f44140a;
+}
+.royal-countdown span {
+  font-family: var(--font-display), serif;
+  font-size: 31px;
+  line-height: 1.1;
+  display: block;
+  color: #583d2c;
+  font-variant-numeric: tabular-nums;
+}
+.royal-countdown small {
+  font-family: var(--font-body), sans-serif;
+  font-size: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-top: 5px;
+  color: #8c765b;
+}
+.countdown-complete {
+  font-family: var(--font-display), serif;
+  font-size: 25px;
+  font-style: italic;
+  margin-top: 25px;
+}
+.discover-link {
+  position: absolute;
+  bottom: 21px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  background: #fbf3e4eb;
+  border: 1px solid #d8c29d7a;
+  border-radius: 40px;
+  padding: 11px 17px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  color: #624129;
+  box-shadow: 0 4px 15px #55301018;
+}
+.families-scene {
+  position: relative;
+  isolation: isolate;
+  padding: 110px 8% 70px;
+  overflow: hidden;
+  text-align: center;
+  background: #fcf7ec;
+}
+.families-content {
+  position: relative;
+  z-index: 2;
+}
+.families-content > .eyebrow {
+  color: #8b744c;
+}
+.families-content > .section-title {
+  margin-top: 17px;
+}
+.families-welcome {
+  font-size: 13px;
+  line-height: 2.2;
+  color: #8c775e;
+  max-width: 600px;
+  margin: auto;
+}
+.families {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-top: 55px;
+}
+.families section {
+  min-width: 0;
+}
+.person-portrait {
+  width: min(240px, 100%);
+  aspect-ratio: 3 / 4;
+  margin: 24px auto 28px;
+  padding: 7px;
+  border: 1px solid #b68a49;
+  border-radius: 140px 140px 12px 12px;
+  background: #fffaf0;
+  box-shadow: 0 12px 35px #73501e17;
+}
+.person-portrait-inner {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #d6b980;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 30%, #fffdf7, #f0e1c8);
+}
+.portrait-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  color: #ad874d;
+}
+.portrait-initial {
+  font-family: var(--font-display), serif;
+  font-size: 92px;
+  font-style: italic;
+  line-height: 1;
+}
+.portrait-caption {
+  border-top: 1px solid #c6a77870;
+  padding-top: 15px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.families section > .eyebrow {
+  font-size: 9px;
+  color: #8b744c;
+}
+.families section > h3 {
+  font-family: var(--font-display), serif;
+  font-size: 55px;
+  line-height: 1.1;
+  margin-top: 18px;
+}
+.family-tamil-name {
+  font-size: 19px;
+  line-height: 2;
+  margin-top: 12px;
+}
+.qualification {
+  font-family: var(--font-body), sans-serif;
+  font-size: 10px;
+  color: #8b744c;
+  margin-top: 5px;
+}
+.families .royal-divider {
+  margin-block: 24px;
+}
+.families .royal-divider > span {
+  width: 25px;
+}
+.families .royal-divider svg {
+  width: 29px;
+}
+.family-role {
+  font-family: var(--font-display), serif;
+  font-size: 20px;
+  font-style: italic;
+  color: #997a50;
+  margin-bottom: 14px;
+}
+.parent-name {
+  font-size: 14px;
+  line-height: 2.2;
+}
+.family-address {
+  font-size: 12px;
+  line-height: 2.1;
+  max-width: 350px;
+  margin: 13px auto 0;
+  color: #86765f;
+}
+.families-and {
+  font-family: var(--font-display), serif;
+  font-size: 36px;
+  font-style: italic;
+  color: #ad8a54;
+}
+.celebration {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  text-align: center;
+  padding: 110px 30px 75px;
+}
+.celebration-inner {
+  width: min(100%, 650px);
+  margin: auto;
+  position: relative;
+  z-index: 3;
+}
+.celebration .section-title {
+  margin-top: 17px;
+}
+.tamil-section-title {
+  font-size: 17px;
+  line-height: 2;
+  margin-top: 15px;
+  color: #9b7e53;
+}
+.celebration .royal-divider {
+  margin: 25px auto 35px;
+}
+.celebration-dark {
+  color: #fff1d7;
+  background: #330c17;
+}
+.celebration-dark .tamil-section-title,
+.celebration-dark .celebration-inner > .eyebrow {
+  color: #d8b77a;
+}
+.celebration-light {
+  background: #faf4e5;
+}
+.occasion-card {
+  border-radius: 20px;
+  background: #fffcf1ef;
+  box-shadow: 0 8px 30px #5d3e1720;
+  border: 1px solid #fffdf5;
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  align-items: center;
+  text-align: left;
+  padding: 26px;
+  color: #604833;
+}
+.occasion-calendar {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  border-right: 1px solid #c3a16a40;
+  padding-right: 26px;
+}
+.occasion-calendar > span {
+  font-family: var(--font-display), serif;
+  font-size: 66px;
+  line-height: 1;
+}
+.occasion-calendar strong {
+  font-family: var(--font-display), serif;
+  font-size: 21px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin-top: 6px;
+}
+.occasion-calendar small {
+  font-family: var(--font-body), sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  margin-top: 8px;
+  color: #998061;
+}
+.occasion-time {
+  padding-left: 26px;
+}
+.occasion-time > p:first-child {
+  font-family: var(--font-display), serif;
+  font-size: 30px;
+  line-height: 1.05;
+}
+.occasion-day {
+  font-family: var(--font-body), sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  display: block;
+  color: #9d7e4f;
+  margin-top: 11px;
+}
+.printed-date {
+  font-family: var(--font-body), sans-serif;
+  font-size: 10px;
+  display: block;
+  margin-top: 9px;
+  color: #8f7d65;
+}
+.tamil-time {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  line-height: 2.2;
+  margin-top: 9px;
+}
+.occasion-tamil-day {
+  font-size: 10px;
+  color: #967e5b;
+  line-height: 2;
+}
+.venue-card {
+  border-radius: 22px;
+  background: #fffcf1ed;
+  box-shadow: 0 8px 30px #5d3e1720;
+  border: 1px solid #fffdf5;
+  margin-top: 23px;
+  padding: 32px 35px 22px;
+  color: #604833;
+}
+.venue-card .eyebrow {
+  font-size: 8px;
+  color: #9c7d4a;
+}
+.venue-card h3 {
+  font-size: 24px;
+  line-height: 1.9;
+  margin: 19px auto 12px;
+  max-width: 500px;
+  overflow-wrap: anywhere;
+}
+.venue-address {
+  font-size: 14px;
+  line-height: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #8b775e;
+}
+.directions {
+  display: flex;
+  width: min(100%, 330px);
+  min-height: 49px;
+  margin: 26px auto 0;
+  border-radius: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: #76242b;
+  color: #fff1da;
+  text-decoration: none;
+  border: 1px solid #a654436e;
+  box-shadow: 0 4px 0 #be936a45;
+  transition:
+    background 0.3s,
+    transform 0.3s;
+}
+.directions:hover {
+  background: #491322;
+  transform: translateY(-2px);
+}
+.directions span {
+  font-family: var(--font-body), sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+.map-caption {
+  font-size: 10px;
+  color: #9d825f;
+  margin-top: 12px;
+  line-height: 2;
+}
+.royal-finale {
+  text-align: center;
+  padding: 40px 25px;
+  background: radial-gradient(ellipse at 50% 85%, #ece5ca, #fbf7ed 65%);
+}
+.finale-tamil {
+  font-size: 15px;
+  line-height: 2;
+  margin-top: 0;
+}
+.finale-family {
+  font-size: 12px;
+  line-height: 2;
+  color: #998266;
+  margin-top: 12px;
+}
+.missing-invitation {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 30px;
+  padding: 30px;
+  text-align: center;
+}
+@media (min-width: 1700px) {
+  .royal-hero {
+    min-height: 900px;
+  }
+  .hero-heading {
+    padding-top: 80px;
+  }
+  .hero-art {
+    max-width: 950px;
+  }
+  .royal-names {
+    font-size: 115px;
+  }
+  .royal-hero .hero-tamil-names {
+    font-size: 17px;
+  }
+}
+@media (max-width: 1050px) {
+  .gate-side-mark,
+  .gate-outside-date {
+    display: none;
+  }
+  .royal-hero {
+    min-height: 820px;
+  }
+  .royal-names {
+    font-size: 90px;
+  }
+  .families-scene {
+    padding-inline: 6%;
+  }
+  .families {
+    grid-template-columns: 1fr 50px 1fr;
+    gap: 15px;
+  }
+  .parent-name {
+    font-size: 12px;
+  }
+  .family-tamil-name {
+    font-size: 17px;
+  }
+  .family-address {
+    font-size: 11px;
+  }
+}
+@media (max-width: 700px) {
+  .gate-scene {
+    width: 100vw;
+    max-width: 600px;
+  }
+  .gate-copy {
+    top: 36%;
+    left: 17%;
+    right: 17%;
+  }
+  .gate-copy > .eyebrow {
+    font-size: 7px;
+    letter-spacing: 0.17em;
+  }
+  .gate-copy .royal-divider {
+    margin-bottom: 19px;
+  }
+  .gate-copy h1 {
+    font-size: clamp(30px, 8vw, 43px);
+    margin-top: 15px;
+  }
+  .gate-subtitle {
+    font-size: 23px;
+    margin-top: 9px;
+  }
+  .gate-tamil {
+    font-size: 10px;
+    margin-top: 12px;
+  }
+  .gate-date {
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    margin-top: 25px;
+  }
+  .open-invitation {
+    min-height: 47px;
+    margin-top: 25px;
+    gap: 8px;
+  }
+  .open-invitation span {
+    font-size: 8px;
+    letter-spacing: 0.15em;
+  }
+  .gate-couple {
+    font-size: 20px;
+    margin-top: 22px;
+  }
+  .gate-world::before,
+  .gate-world::after {
+    display: none;
+  }
+  .floating-replay {
+    width: 38px;
+    height: 38px;
+    right: 12px;
+    top: 12px;
+  }
+  .royal-hero {
+    min-height: 750px;
+    height: 100svh;
+    max-height: 900px;
+  }
+  .hero-heading {
+    padding: 40px 13% 0;
+  }
+  .hero-blessing {
+    font-size: 9px;
+    line-height: 2.1;
+  }
+  .royal-names {
+    font-size: clamp(60px, 17vw, 86px);
+    line-height: 1;
+    margin-top: 24px;
+  }
+  .royal-names > em {
+    font-size: 32px;
+    line-height: 1.65;
+  }
+  .hero-tamil-names {
+    font-size: 11px;
+    margin-top: 19px;
+    line-height: 2.2;
+  }
+  .hero-tamil-names > span {
+    font-size: 18px;
+    padding: 0 4px;
+  }
+  .hero-date {
+    font-size: 7px;
+    letter-spacing: 0.13em;
+    line-height: 1.8;
+    margin-top: 13px;
+  }
+  .royal-countdown {
+    gap: 7px;
+    margin-top: 21px;
+  }
+  .royal-countdown > div {
+    min-width: 50px;
+    padding: 7px 9px;
+    border-radius: 6px;
+  }
+  .royal-countdown span {
+    font-size: 25px;
+  }
+  .royal-countdown small {
+    font-size: 6px;
+    margin-top: 4px;
+  }
+  .discover-link {
+    font-size: 7px;
+    bottom: 18px;
+    padding: 9px 12px;
+  }
+  .section-title {
+    font-size: 53px;
+  }
+  .families-scene {
+    padding: 105px 25px 60px;
+  }
+  .toran {
+    max-height: 100px;
+  }
+  .families-content > .eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.18em;
+  }
+  .families-content > .section-title {
+    margin-top: 15px;
+  }
+  .royal-divider {
+    margin: 22px auto;
+  }
+  .families-welcome {
+    font-size: 12px;
+    line-height: 2.3;
+    max-width: 290px;
+  }
+  .families {
+    grid-template-columns: 1fr;
+    gap: 27px;
+    margin-top: 35px;
+  }
+  .families section > h3 {
+    font-size: 43px;
+    margin-top: 16px;
+  }
+  .person-portrait {
+    width: min(196px, 100%);
+    margin-block: 20px 24px;
+  }
+  .families section > .eyebrow {
+    font-size: 8px;
+  }
+  .family-tamil-name {
+    font-size: 18px;
+    margin-top: 9px;
+  }
+  .qualification {
+    font-size: 9px;
+  }
+  .families .royal-divider {
+    margin-block: 20px;
+  }
+  .family-role {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+  .parent-name {
+    font-size: 13px;
+    line-height: 2.2;
+  }
+  .family-address {
+    font-size: 11px;
+    line-height: 2.2;
+    max-width: 300px;
+    margin-top: 11px;
+  }
+  .families-and {
+    font-size: 34px;
+    line-height: 1.1;
+    margin-block: 5px;
+  }
+  .celebration {
+    padding: 100px 22px 60px;
+  }
+  .celebration .section-title {
+    font-size: 54px;
+    margin-top: 17px;
+  }
+  .tamil-section-title {
+    font-size: 15px;
+    margin-top: 13px;
+  }
+  .celebration .royal-divider {
+    margin: 22px auto 28px;
+  }
+  .occasion-card {
+    grid-template-columns: 82px 1fr;
+    padding: 20px 17px;
+    border-radius: 19px;
+  }
+  .occasion-calendar {
+    padding-right: 16px;
+  }
+  .occasion-calendar > span {
+    font-size: 51px;
+  }
+  .occasion-calendar strong {
+    font-size: 17px;
+  }
+  .occasion-calendar small {
+    font-size: 8px;
+    margin-top: 6px;
+  }
+  .occasion-time {
+    padding-left: 16px;
+  }
+  .occasion-time > p:first-child {
+    font-size: 24px;
+    line-height: 1.1;
+  }
+  .occasion-day {
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    margin-top: 9px;
+  }
+  .printed-date {
+    font-size: 9px;
+    margin-top: 7px;
+  }
+  .tamil-time {
+    font-size: 10px;
+    line-height: 2;
+    gap: 5px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  .tamil-time svg {
+    width: 12px;
+  }
+  .occasion-tamil-day {
+    font-size: 8px;
+    line-height: 1.8;
+    display: block;
+    margin-top: 3px;
+  }
+  .venue-card {
+    padding: 27px 18px 21px;
+    margin-top: 20px;
+    border-radius: 20px;
+  }
+  .venue-card .eyebrow {
+    font-size: 7px;
+  }
+  .venue-card h3 {
+    font-size: 19px;
+    line-height: 2;
+    margin: 18px auto 11px;
+  }
+  .venue-address {
+    font-size: 12px;
+    line-height: 2.1;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .venue-address svg {
+    margin-top: 3px;
+  }
+  .directions {
+    min-height: 47px;
+    margin-top: 23px;
+    gap: 18px;
+  }
+  .directions span {
+    font-size: 9px;
+    letter-spacing: 0.13em;
+  }
+  .map-caption {
+    font-size: 9px;
+    margin-top: 12px;
+  }
+  .royal-finale {
+    padding: 40px 25px;
+  }
+  .finale-tamil {
+    font-size: 13px;
+    margin-top: 0;
+  }
+  .finale-family {
+    font-size: 11px;
+    margin-top: 14px;
+  }
+}
+@media (max-width: 360px) {
+  .gate-copy {
+    left: 16%;
+    right: 16%;
+    top: 35%;
+  }
+  .gate-copy h1 {
+    font-size: 29px;
+  }
+  .gate-subtitle {
+    font-size: 21px;
+  }
+  .gate-tamil {
+    font-size: 9px;
+  }
+  .gate-date {
+    font-size: 7px;
+    letter-spacing: 0.1em;
+  }
+  .gate-couple {
+    font-size: 18px;
+  }
+  .open-invitation span {
+    font-size: 7px;
+  }
+  .gate-copy .royal-divider {
+    margin-bottom: 17px;
+  }
+  .hero-heading {
+    padding-inline: 12%;
+    padding-top: 35px;
+  }
+  .royal-names {
+    font-size: 61px;
+  }
+  .hero-tamil-names {
+    font-size: 10px;
+  }
+  .hero-date {
+    font-size: 6px;
+  }
+  .royal-countdown > div {
+    min-width: 45px;
+    padding-inline: 7px;
+  }
+  .royal-countdown {
+    gap: 6px;
+  }
+  .royal-hero {
+    min-height: 700px;
+  }
+  .celebration {
+    padding-inline: 16px;
+  }
+  .celebration .section-title {
+    font-size: 46px;
+  }
+  .occasion-card {
+    grid-template-columns: 70px 1fr;
+    padding-inline: 13px;
+  }
+  .occasion-time {
+    padding-left: 13px;
+  }
+  .occasion-time > p:first-child {
+    font-size: 22px;
+  }
+  .occasion-calendar {
+    padding-right: 13px;
+  }
+  .venue-card h3 {
+    font-size: 17px;
+  }
+  .families-scene {
+    padding-inline: 20px;
+  }
+  .parent-name {
+    font-size: 12px;
+  }
+  .families-content > .section-title {
+    font-size: 49px;
+  }
+}
+@media (max-height: 700px) and (min-width: 701px) {
+  .gate-copy {
+    top: 34%;
+  }
+  .gate-copy h1 {
+    font-size: 35px;
+    margin-top: 12px;
+  }
+  .gate-copy .royal-divider {
+    margin-bottom: 14px;
+  }
+  .gate-copy > .eyebrow {
+    font-size: 7px;
+  }
+  .gate-subtitle {
+    font-size: 22px;
+  }
+  .gate-tamil {
+    font-size: 9px;
+    margin-top: 7px;
+  }
+  .gate-date {
+    margin-top: 15px;
+    font-size: 7px;
+  }
+  .open-invitation {
+    margin-top: 15px;
+    min-height: 42px;
+  }
+  .gate-couple {
+    margin-top: 12px;
+    font-size: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .gate-door {
+    will-change: auto;
+  }
+  .gate-opening {
+    animation: none;
+  }
+  [data-reveal],
+  .invitation-stage[data-opening="true"] .hero-heading {
+    opacity: 1;
+    transform: none;
+  }
+}

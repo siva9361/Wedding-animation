@@ -1,0 +1,180 @@
+import { test, expect } from "@playwright/test";
+const key = "vignesh-sandhya:temple-invitation:v2";
+
+test("temple doors open into one invitation with the family's actual details", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You are invited" })).toBeVisible();
+  await expect(page.locator(".gate-door")).toHaveCount(2);
+  await expect(page.getByRole("article")).toHaveCount(0);
+  await page.getByRole("button", { name: /Open invitation/i }).click();
+  await expect(page.getByRole("article")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
+  expect(new URL(page.url()).pathname).toBe("/");
+  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
+  await expect(page.locator(".hero-tamil-names")).toContainText("N. விக்னேஷ்");
+  await expect(page.locator(".hero-tamil-names")).toContainText("S. சந்தியா");
+  await expect(page.locator("#reception")).toContainText("12.11.2026");
+  await expect(page.locator("#reception")).toContainText("மாலை 6.00 – 7.00 மணி");
+  await expect(page.locator("#reception")).toContainText("காயத்ரி ஹோட்டல்");
+  await expect(page.locator("#wedding")).toContainText("13.11.2026");
+  await expect(page.locator("#wedding")).toContainText("அதிகாலை 4.45 – 5.45 மணி");
+  await expect(page.locator("#wedding .occasion-calendar > span")).toHaveText("13");
+  await expect(page.locator(".families")).toContainText("திரு. R. நாச்சிமுத்துக்கவுண்டர்");
+  await expect(page.locator(".families")).toContainText("திரு. T. சுரேஷ்");
+  await expect(page.locator("nav, form")).toHaveCount(0);
+  await expect(page.locator(".person-portrait")).toHaveCount(2);
+  await expect(page.locator(".blessings-scene, .falling-petals")).toHaveCount(0);
+  for (const link of await page
+    .locator("a")
+    .evaluateAll((elements) => elements.map((element) => element.getAttribute("href") ?? ""))) {
+    expect(link.startsWith("https://www.google.com/maps/search/") || link.startsWith("#")).toBe(
+      true,
+    );
+  }
+  await page.reload();
+  await expect(page.getByRole("article")).toBeVisible();
+  await page.getByRole("button", { name: "அழைப்பிதழை மீண்டும் திறக்க", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "You are invited" })).toBeVisible();
+  await expect(page.getByRole("article")).toHaveCount(0);
+});
+
+test("phone and desktop layouts have no clipped names, horizontal overflow or hydration errors", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addInitScript((storageKey) => sessionStorage.setItem(storageKey, "yes"), key);
+  for (const width of [320, 375, 430, 768, 1440, 3840]) {
+    await page.setViewportSize({ width, height: width > 2000 ? 2160 : 900 });
+    await page.goto("/");
+    await expect(page.getByRole("article")).toBeVisible();
+    await page.evaluate(() => document.fonts.ready);
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
+      "document at " + width,
+    ).toBe(true);
+    expect(
+      await page
+        .locator(".royal-names")
+        .evaluate((element) => element.scrollWidth <= element.clientWidth + 1),
+      "names at " + width,
+    ).toBe(true);
+    await page.locator("#wedding").scrollIntoViewIfNeeded();
+    await expect(page.locator("#wedding .directions")).toBeVisible();
+    await page.locator("#reception").scrollIntoViewIfNeeded();
+    await expect(page.locator("#reception .directions")).toBeVisible();
+  }
+  expect(errors).toEqual([]);
+});
+
+test("the opening button stays on screen on small and large phones", async ({ page }) => {
+  for (const viewport of [
+    { width: 320, height: 568 },
+    { width: 375, height: 812 },
+    { width: 430, height: 932 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const button = page.getByRole("button", { name: /Open invitation/i });
+    await expect(button).toBeVisible();
+    const bounds = await button.boundingBox();
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(viewport.height - 12);
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(viewport.width);
+  }
+});
+
+test("old website pages remain removed", async ({ page }) => {
+  for (const route of ["/story", "/events", "/gallery", "/rsvp", "/guest-info"]) {
+    expect((await page.goto(route))?.status()).toBe(404);
+    await expect(page.getByRole("link", { name: "அழைப்பிதழைக் காண்க →" })).toBeVisible();
+  }
+});
+
+test("reduced-motion opening works with storage blocked", async ({ page }) => {
+  await page.addInitScript(() =>
+    Object.defineProperty(window, "sessionStorage", {
+      get() {
+        throw new DOMException("Blocked", "SecurityError");
+      },
+    }),
+  );
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.getByRole("button", { name: /Open invitation/i }).click();
+  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused({
+    timeout: 1000,
+  });
+  await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
+});
+
+test("a past event shows a completed message instead of negative countdown values", async ({
+  page,
+}) => {
+  await page.clock.setFixedTime(new Date("2028-01-01T00:00:00Z"));
+  await page.addInitScript((storageKey) => sessionStorage.setItem(storageKey, "yes"), key);
+  await page.goto("/");
+  await expect(page.getByText("Our beautiful beginning is here.")).toBeVisible();
+  await expect(page.locator(".royal-countdown")).toHaveCount(0);
+});
+
+test("the slower opening and wheel glide remain interruptible", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await page.getByRole("button", { name: /Open invitation/i }).click();
+  await page.waitForTimeout(900);
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Opening your invitation/i })).toBeDisabled();
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
+
+  await page.mouse.move(600, 400);
+  await page.mouse.wheel(0, 400);
+  await page.waitForTimeout(100);
+  const early = await page.evaluate(() => scrollY);
+  expect(early).toBeGreaterThan(0);
+  expect(early).toBeLessThan(250);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(260);
+
+  const zoomPreserved = await page.evaluate(() => {
+    const event = new WheelEvent("wheel", {
+      deltaY: 100,
+      ctrlKey: true,
+      cancelable: true,
+      bubbles: true,
+    });
+    document.body.dispatchEvent(event);
+    return !event.defaultPrevented;
+  });
+  expect(zoomPreserved).toBe(true);
+  await page.mouse.wheel(0, 500);
+  await page.waitForTimeout(80);
+  await page.keyboard.press("Escape");
+  const stopped = await page.evaluate(() => scrollY);
+  await page.waitForTimeout(350);
+  expect(Math.abs((await page.evaluate(() => scrollY)) - stopped)).toBeLessThan(3);
+});
+
+test("mobile discovery scrolls gently and reveals the family section", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.addInitScript((storageKey) => sessionStorage.setItem(storageKey, "yes"), key);
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
+  const target = await page
+    .locator("#families")
+    .evaluate((el) => el.getBoundingClientRect().top + scrollY - 25);
+  await page.getByRole("link", { name: /Discover our invitation/i }).click();
+  await page.waitForTimeout(450);
+  const midway = await page.evaluate(() => scrollY);
+  expect(midway).toBeGreaterThan(0);
+  expect(midway).toBeLessThan(target - 50);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(target - 3);
+  await expect(page.locator("#families h2")).toHaveCSS("opacity", "1");
+  await page.locator("#wedding").scrollIntoViewIfNeeded();
+  await expect(page.locator("#wedding h2")).toHaveCSS("opacity", "1");
+});
