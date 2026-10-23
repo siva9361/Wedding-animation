@@ -1,4 +1,5 @@
-import type { CSSProperties } from "react";
+import Image from "next/image";
+import type { CSSProperties, Ref } from "react";
 
 export function RoyalDivider({ light = false }: { light?: boolean }) {
   return (
@@ -16,28 +17,42 @@ export function RoyalDivider({ light = false }: { light?: boolean }) {
   );
 }
 
-export function Toran({ className = "" }: { className?: string }) {
+// The animated variant sways its leaves and bells and swings with scroll (see SwayingToran).
+export function Toran({
+  className = "",
+  animated = false,
+  ref,
+}: {
+  className?: string;
+  animated?: boolean;
+  ref?: Ref<SVGSVGElement>;
+}) {
   return (
-    <svg className={"toran " + className} viewBox="0 0 800 150" fill="none" aria-hidden="true">
-      <path
-        d="M-20 5Q90 90 200 8Q300 85 400 8Q500 85 600 8Q710 90 820 5"
-        stroke="#c39b53"
-        strokeWidth="12"
-      />
-      <path
-        d="M-20 5Q90 90 200 8Q300 85 400 8Q500 85 600 8Q710 90 820 5"
-        stroke="#fbf2d8"
-        strokeWidth="7"
-        strokeDasharray="3 7"
-        strokeLinecap="round"
-      />
-      {Array.from({ length: 17 }, (_, i) => (
+    <svg
+      ref={ref}
+      className={"toran " + (animated ? "toran-animated " : "") + className}
+      viewBox="0 0 800 150"
+      fill="none"
+      aria-hidden="true"
+      data-reveal={animated ? "" : undefined}
+    >
+      <g className="toran-rope">
         <path
+          d="M-20 5Q90 90 200 8Q300 85 400 8Q500 85 600 8Q710 90 820 5"
+          stroke="#c39b53"
+          strokeWidth="12"
+        />
+        <path
+          d="M-20 5Q90 90 200 8Q300 85 400 8Q500 85 600 8Q710 90 820 5"
+          stroke="#fbf2d8"
+          strokeWidth="7"
+          strokeDasharray="3 7"
+          strokeLinecap="round"
+        />
+      </g>
+      {Array.from({ length: 17 }, (_, i) => (
+        <g
           key={i}
-          d="M0 0C-15 16-10 34 0 48C10 32 15 15 0 0Z"
-          fill={i % 2 ? "#74823a" : "#8e983e"}
-          stroke="#596c2d"
-          strokeWidth=".6"
           transform={
             "translate(" +
             i * 50 +
@@ -47,18 +62,43 @@ export function Toran({ className = "" }: { className?: string }) {
             (i % 2 ? 10 : -10) +
             ")"
           }
-        />
+        >
+          <path
+            className="toran-leaf"
+            d="M0 0C-15 16-10 34 0 48C10 32 15 15 0 0Z"
+            fill={i % 2 ? "#74823a" : "#8e983e"}
+            stroke="#596c2d"
+            strokeWidth=".6"
+            style={{
+              animationDelay: `${-((i * 0.57) % 4)}s`,
+              animationDuration: `${3.6 + ((i * 0.31) % 1.6)}s`,
+            }}
+          />
+        </g>
       ))}
       {[18, 200, 400, 600, 782].map((x, i) => (
         <g key={x} transform={"translate(" + x + " 5)"}>
-          <path
-            d={"M0 0V" + (i % 2 ? 90 : 115)}
-            stroke="#d2b273"
-            strokeWidth="5"
-            strokeDasharray="4 4"
-          />
-          <path d={"M-6 " + (i % 2 ? 92 : 117) + "h12l5 12h-22z"} fill="#ba8e40" />
-          <ellipse cy={i % 2 ? 90 : 115} rx="7" ry="5" fill="#8f2433" />
+          <g
+            className="toran-drop"
+            style={{ "--k": (i % 2 ? -1 : 1) * (0.75 + ((i * 7) % 5) / 8) } as CSSProperties}
+          >
+            <g
+              className="toran-drop-idle"
+              style={{
+                animationDelay: `${-((i * 0.83) % 3.4)}s`,
+                animationDuration: `${3.2 + ((i * 0.41) % 1.4)}s`,
+              }}
+            >
+              <path
+                d={"M0 0V" + (i % 2 ? 90 : 115)}
+                stroke="#d2b273"
+                strokeWidth="5"
+                strokeDasharray="4 4"
+              />
+              <path d={"M-6 " + (i % 2 ? 92 : 117) + "h12l5 12h-22z"} fill="#ba8e40" />
+              <ellipse cy={i % 2 ? 90 : 115} rx="7" ry="5" fill="#8f2433" />
+            </g>
+          </g>
         </g>
       ))}
     </svg>
@@ -104,10 +144,71 @@ export function PortalLampFlames() {
               top: `${(y / 1536) * 100}%`,
               "--flicker-delay": `${-((i * 0.37) % 1.3)}s`,
               "--flicker-speed": `${1.1 + ((i * 0.23) % 0.7)}s`,
+              "--ignite-delay": `${0.35 + (i % 11) * 0.11}s`,
             } as CSSProperties
           }
         />
       ))}
+    </div>
+  );
+}
+
+// Hanging jasmine strands painted in temple-portal.webp: [centre x, top y, tassel bottom y]
+// in source pixels. Each window holds a copy of the art and swings from the strand's top,
+// so the painted garland itself sways.
+const PORTAL_GARLAND_DROPS: [number, number, number][] = [
+  [212, 297, 378],
+  [299, 302, 380],
+  [402, 254, 338],
+  [512, 282, 360],
+  [624, 254, 338],
+  [727, 302, 380],
+  [815, 299, 378],
+];
+const DROP_HALF_WIDTH = 36;
+const DROP_TAIL = 16;
+
+export function PortalGarlandSway() {
+  return (
+    <div className="garland-sway" aria-hidden="true">
+      {PORTAL_GARLAND_DROPS.map(([x, top, bottom], i) => {
+        const left = x - DROP_HALF_WIDTH;
+        const width = DROP_HALF_WIDTH * 2;
+        const height = bottom + DROP_TAIL - top;
+        return (
+          <div
+            key={x}
+            className="garland-drop"
+            style={
+              {
+                left: `${(left / 1024) * 100}%`,
+                top: `${(top / 1536) * 100}%`,
+                width: `${(width / 1024) * 100}%`,
+                height: `${(height / 1536) * 100}%`,
+                "--sway-delay": `${-((Math.abs(x - 512) * 0.011) % 3)}s`,
+                "--sway-speed": `${3 + Math.abs(i - 3) * 0.3}s`,
+              } as CSSProperties
+            }
+          >
+            <div
+              className="garland-drop-art"
+              style={{
+                left: `${(-left / width) * 100}%`,
+                top: `${(-top / height) * 100}%`,
+                width: `${(1024 / width) * 100}%`,
+                height: `${(1536 / height) * 100}%`,
+              }}
+            >
+              <Image
+                src="/images/temple-portal.webp"
+                alt=""
+                fill
+                sizes="(max-width: 650px) 100vw, 670px"
+              />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

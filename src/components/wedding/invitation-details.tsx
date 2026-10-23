@@ -10,9 +10,9 @@ import {
   type InvitationPhoto,
   type InvitationPerson,
 } from "@/lib/wedding-config";
-import { HomaFire, Mandala, RoyalDivider, Toran } from "./temple-ornaments";
+import { HomaFire, Mandala, RoyalDivider } from "./temple-ornaments";
+import { SwayingToran } from "./swaying-toran";
 import { Countdown } from "./countdown";
-import { FamilyHome } from "./family-home";
 
 // Scales and offsets the photo so only its crop box fills the frame.
 function cropStyle({ width, height, crop }: InvitationPhoto): CSSProperties {
@@ -105,7 +105,7 @@ function Celebration({ event, dark = false }: { event: InvitationEvent; dark?: b
         "celebration event-" + event.id + " " + (dark ? "celebration-dark" : "celebration-light")
       }
     >
-      <Toran />
+      <SwayingToran />
       <div className="celebration-inner">
         <h2 className="section-title" lang="en" data-reveal="">
           {dark ? "The Reception" : "The Wedding"}
@@ -231,7 +231,7 @@ export function InvitationDetails({
         </a>
       </section>
       <section className="families-scene" id="families">
-        <Toran />
+        <SwayingToran />
         <Mandala className="scene-mandala" />
         <div className="families-content">
           <p className="eyebrow ornate-eyebrow" lang="en" data-reveal="">
@@ -256,6 +256,7 @@ export function InvitationDetails({
       {wedding && <Celebration event={wedding} />}
       {reception && <Celebration event={reception} dark />}
       <section className="invitation-verses" aria-labelledby="welcome-verses-title">
+        <SwayingToran />
         <Mandala className="scene-mandala" />
         <div className="verses-panel">
           <p className="eyebrow ornate-eyebrow" lang="en" data-reveal="">
@@ -266,7 +267,15 @@ export function InvitationDetails({
           </h2>
           <RoyalDivider />
           <div className="verses-layout">
-            <FamilyHome />
+            <figure className="couple-photo">
+              <Image
+                src="/images/couple.webp"
+                alt="Vignesh and Sandhya in wedding attire with jasmine and rose garlands, greeting with folded hands before a golden flower-decked mandap"
+                width={1024}
+                height={1536}
+                sizes="(max-width: 900px) min(100vw, 400px), 460px"
+              />
+            </figure>
             <blockquote>
               {invitation.welcomeVerses.lines.map((line, i) => (
                 <div

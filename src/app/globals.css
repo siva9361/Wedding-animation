@@ -145,6 +145,52 @@ svg {
   pointer-events: none;
   z-index: 2;
 }
+/* Every toran sways and swings with scroll. */
+.toran-animated {
+  overflow: visible;
+}
+.toran-animated[data-reveal] {
+  transform-origin: 50% 0;
+}
+.toran-animated[data-reveal="pending"] {
+  opacity: 0;
+  transform: translate3d(0, -40px, 0) scaleY(0.7);
+}
+.toran-animated .toran-rope,
+.toran-animated .toran-leaf,
+.toran-animated .toran-drop,
+.toran-animated .toran-drop-idle {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+}
+.toran-animated .toran-rope {
+  transform: scaleY(calc(1 + var(--toran-stretch, 0)));
+}
+.toran-animated .toran-drop {
+  transform: rotate(calc(var(--toran-swing, 0deg) * var(--k, 1)));
+}
+.toran-animated .toran-drop-idle {
+  animation: toran-idle 3.6s ease-in-out infinite alternate;
+}
+@keyframes toran-idle {
+  from {
+    transform: rotate(-2.6deg);
+  }
+  to {
+    transform: rotate(2.6deg);
+  }
+}
+.toran-animated .toran-leaf {
+  animation: toran-leaf 4s ease-in-out infinite alternate;
+}
+@keyframes toran-leaf {
+  from {
+    transform: rotate(calc(var(--toran-swing, 0deg) * -0.4 - 3deg));
+  }
+  to {
+    transform: rotate(calc(var(--toran-swing, 0deg) * -0.4 + 3deg));
+  }
+}
 .floating-replay {
   position: fixed;
   z-index: 35;
@@ -284,13 +330,30 @@ svg {
 }
 .lamp-flame {
   position: absolute;
-  width: 0.95%;
-  height: 1.35%;
+  width: 1.05%;
+  height: 1.5%;
   transform: translate(-50%, -100%);
+  transform-origin: 50% 100%;
+  animation: lamp-ignite 0.9s cubic-bezier(0.2, 0.8, 0.3, 1.2) var(--ignite-delay, 0s) both;
 }
 .lamp-flame-base {
-  width: 1.1%;
-  height: 1.6%;
+  width: 1.25%;
+  height: 1.8%;
+}
+/* The lamps light one after another as the doorway appears. */
+@keyframes lamp-ignite {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -100%) scale(0.1, 0.2);
+  }
+  55% {
+    opacity: 1;
+    transform: translate(-50%, -100%) scale(1.3, 1.45);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%);
+  }
 }
 .lamp-flame::before,
 .lamp-flame::after {
@@ -301,7 +364,7 @@ svg {
 .lamp-flame::before {
   inset: -140% -260%;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 62%, #ffc35a66 0%, #ff9b2e22 38%, transparent 68%);
+  background: radial-gradient(circle at 50% 62%, #ffc35a99 0%, #ff9b2e33 38%, transparent 68%);
   mix-blend-mode: screen;
   animation: lamp-halo var(--flicker-speed) ease-in-out var(--flicker-delay) infinite alternate;
 }
@@ -346,6 +409,40 @@ svg {
   to {
     opacity: 1;
     transform: scale(1.08);
+  }
+}
+/* Copies of the painted jasmine strands swing from their tops in front of the door art. */
+.garland-sway {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.garland-drop {
+  position: absolute;
+  overflow: hidden;
+  transform-origin: 50% 0;
+  -webkit-mask-image:
+    linear-gradient(90deg, transparent, #000 12% 88%, transparent),
+    linear-gradient(#000 82%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(90deg, transparent, #000 12% 88%, transparent),
+    linear-gradient(#000 82%, transparent);
+  mask-composite: intersect;
+  animation: garland-sway var(--sway-speed) ease-in-out var(--sway-delay) infinite alternate;
+}
+.garland-drop-art {
+  position: absolute;
+}
+.garland-drop-art img {
+  object-fit: fill;
+}
+@keyframes garland-sway {
+  from {
+    transform: rotate(-3.2deg);
+  }
+  to {
+    transform: rotate(3.2deg);
   }
 }
 /* The flames flare briefly as the doors swing open. */
@@ -409,7 +506,7 @@ svg {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: 80px max(20px, 6%);
+  padding: 110px max(20px, 6%) 80px;
   text-align: center;
   background: radial-gradient(ellipse at 50% 40%, #fffaf0 0%, #fcf7ec 55%, #f5ead3 100%);
 }
@@ -529,7 +626,7 @@ svg {
       0 0 12px #f0cf8a;
   }
 }
-/* The family-at-home illustration sits beside the verse list. */
+/* The couple's wedding photo sits beside the verse list. */
 .verses-layout {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
@@ -546,12 +643,12 @@ svg {
 .verses-layout .verse-chip:last-child:nth-child(odd) {
   width: 100%;
 }
-.family-home {
+.couple-photo {
   position: relative;
   margin: 0;
   padding: 8px;
   border: 1px solid #c9a464;
-  border-radius: 220px 220px 26px 26px;
+  border-radius: 26px;
   background: #fffaf0;
   box-shadow:
     0 0 0 6px #fffdf7,
@@ -561,68 +658,14 @@ svg {
     transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.7s ease;
 }
-.family-home svg {
+.couple-photo img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 212px 212px 19px 19px;
-}
-.home-person {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.home-bob {
-  animation: home-bob 3.2s ease-in-out infinite;
-}
-@keyframes home-bob {
-  50% {
-    transform: translateY(-3px);
-  }
-}
-.home-toran {
-  transform-box: fill-box;
-  transform-origin: 50% 0;
-  animation: home-sway 4s ease-in-out infinite;
-}
-.home-banana {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  animation: home-sway 6s ease-in-out infinite;
-}
-@keyframes home-sway {
-  0%,
-  100% {
-    transform: rotate(-1.5deg);
-  }
-  50% {
-    transform: rotate(1.5deg);
-  }
-}
-.home-flame {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  animation: lamp-flicker 1.3s ease-in-out infinite;
-}
-.home-lamp-glow,
-.home-sun {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: lamp-halo 2.4s ease-in-out infinite alternate;
-}
-.home-sun {
-  animation-duration: 5s;
-}
-.home-birds {
-  animation: home-birds 9s ease-in-out infinite alternate;
-}
-@keyframes home-birds {
-  to {
-    transform: translate(22px, -6px);
-  }
+  border-radius: 19px;
 }
 @media (hover: hover) {
-  .family-home:hover {
+  .couple-photo:hover {
     transform: translateY(-6px);
     box-shadow:
       0 0 0 6px #fffdf7,
@@ -630,16 +673,13 @@ svg {
       0 30px 60px #8a5e2230,
       0 0 40px #f0cf8a40;
   }
-  .home-person:hover {
-    transform: translateY(-7px) scale(1.04);
-  }
 }
 @media (max-width: 900px) {
   .verses-layout {
     grid-template-columns: 1fr;
     gap: 32px;
   }
-  .family-home {
+  .couple-photo {
     width: min(100%, 400px);
     margin: 0 auto;
   }
@@ -1786,7 +1826,7 @@ svg {
     margin-block: 14px;
   }
   .invitation-verses {
-    padding: 64px 16px;
+    padding: 100px 16px 64px;
   }
   .invitation-verses blockquote {
     grid-template-columns: 1fr;
@@ -2042,8 +2082,12 @@ svg {
     animation: none;
   }
   .gate-scene::before,
+  .lamp-flame,
   .lamp-flame::before,
   .lamp-flame::after,
+  .garland-drop,
+  .toran-drop-idle,
+  .toran-leaf,
   .homa-tongue,
   .homa-glow {
     animation: none !important;
@@ -2055,14 +2099,7 @@ svg {
   .families-and::before,
   .shimmer-title,
   .scene-mandala,
-  .family-card:hover::after,
-  .home-bob,
-  .home-toran,
-  .home-banana,
-  .home-flame,
-  .home-lamp-glow,
-  .home-sun,
-  .home-birds {
+  .family-card:hover::after {
     animation: none !important;
   }
   [data-reveal],
