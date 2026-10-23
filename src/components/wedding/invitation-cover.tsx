@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { invitation } from "@/lib/wedding-config";
-import { RoyalDivider } from "./temple-ornaments";
+import { PortalLampFlames, RoyalDivider } from "./temple-ornaments";
 
 export function InvitationCover({ opening, onOpen }: { opening: boolean; onOpen: () => void }) {
   const reception =
@@ -34,6 +34,7 @@ export function InvitationCover({ opening, onOpen }: { opening: boolean; onOpen:
               fetchPriority="high"
               sizes="(max-width: 650px) 100vw, 670px"
             />
+            <PortalLampFlames />
           </div>
         </div>
         <div className="gate-door gate-door-right" aria-hidden="true">
@@ -45,7 +46,18 @@ export function InvitationCover({ opening, onOpen }: { opening: boolean; onOpen:
               loading="eager"
               sizes="(max-width: 650px) 100vw, 670px"
             />
+            <PortalLampFlames />
           </div>
+        </div>
+        <div className="gate-vinayagar">
+          <Image
+            src="/images/vinayagar.webp"
+            alt="விநாயகர்"
+            width={190}
+            height={255}
+            loading="eager"
+            sizes="80px"
+          />
         </div>
         <div className="gate-copy">
           <RoyalDivider light />

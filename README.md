@@ -1,6 +1,6 @@
 # Vignesh & Sandhya — Wedding Invitation
 
-One mobile-friendly page: a gold temple entrance, couple names, family details, countdown, wedding and reception dates, and venue links.
+One mobile-friendly page: gold temple doors open onto the supplied Vinayagar symbol above the couple names, with a complete wedding mandap and sacred fire in a homa kundam behind them. Family details, countdown, wedding and reception dates, venue links, and the family's Tamil welcome verses follow.
 
 ## Run
 
@@ -27,15 +27,17 @@ Edit **src/lib/wedding-config.ts**.
 
 Dates and times use Indian Standard Time. Map buttons search the venue names and addresses from the supplied invitation.
 
-## Add the two photos
+The Vinayagar artwork is cropped directly from **assets/invitation-reference.jpg** and appears on the opening cover and above the couple names in the hero. The separate Tamil invitation heading and date banner have been removed. Run `bun run scripts/extract-invitation-art.ts` to recreate **public/images/vinayagar.webp**. The card's eleven welcome verses are editable in `invitation.welcomeVerses`; the printed Tamil wedding wording is in the wedding event's `note`.
 
-Matching gold arched frames show the groom's and bride's initials until their photos are supplied. To replace the placeholders, add **public/images/groom.jpg** and **public/images/bride.jpg**, then set each person's `photo` in **src/lib/wedding-config.ts**:
+## Groom and bride photos
+
+The supplied photos now appear in matching gold arched frames. Original PNGs are preserved in **assets/photos/**; optimized WebP copies are served from **public/images/**. Photo paths and crop positions are configured in **src/lib/wedding-config.ts**:
 
 ```ts
 // In groom:
-photo: { src: "/images/groom.jpg", alt: "விக்னேஷ்", position: "50% 35%" },
+photo: { src: "/images/groom.webp", alt: "விக்னேஷ்", position: "50% 0%" },
 // In bride:
-photo: { src: "/images/bride.jpg", alt: "சந்தியா", position: "50% 35%" },
+photo: { src: "/images/bride.webp", alt: "சந்தியா", position: "50% 0%" },
 ```
 
 The optional `position` controls the crop. Portrait images load when near the viewport.
@@ -43,11 +45,11 @@ The optional `position` controls the crop. Portrait images load when near the vi
 ## Performance and accessibility
 
 - One content route: `/`. Old demo routes return 404.
-- The doors open gradually over 3.2 seconds, or 80 ms with reduced motion. The artwork and names fade into view.
+- The doors open gradually over 6.5 seconds on desktop and phones, or 80 ms with reduced motion. The artwork and names fade into view.
 - Sections reveal once with a soft 1.2-second fade and gentle upward movement using native IntersectionObserver and CSS.
 - Mouse-wheel scrolling eases into place; the discovery link glides to the family section over 2 seconds on desktop and mobile. Touch swipes, keyboard navigation, pinch zoom, and reduced-motion scrolling retain native behavior. Any new touch or navigation key interrupts a running glide.
 - No external animation library or petal effects. Animation frames stop when scrolling settles or the page becomes hidden.
-- Only two optimized artwork files are served: the portal and mandap, totaling 671,000 bytes before responsive image optimization.
+- The portal and wedding mandap artwork total 750,184 bytes. The two supplied portraits use optimized WebP files and load near the viewport.
 - Countdown uses a native IntersectionObserver and pauses offscreen or in a hidden tab.
 - Session storage remembers opening; replay and keyboard focus work without storage.
 
@@ -68,4 +70,4 @@ bun run test:e2e
 bun run scripts/capture-invitation.ts
 ```
 
-Browser checks cover the one-page opening, actual Tamil details, two portrait frames and absence of removed sections, 320–3840 px layouts, old route removal, reduced motion, blocked storage, and completed countdowns. Screenshots are saved under ignored **.qa/**.
+Browser checks cover the one-page opening, actual Tamil details, both supplied portraits, the slower phone opening, and absence of removed sections, 320–3840 px layouts, old route removal, reduced motion, blocked storage, and completed countdowns. Screenshots are saved under ignored **.qa/**.
