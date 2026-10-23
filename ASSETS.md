@@ -7,16 +7,20 @@ Reference frames were inspected for composition only and retained under ignored 
 
 ## Project assets
 
-Original images were created with the **built-in image_gen tool**, then copied into this workspace. Sharp performs PNG-to-WebP format optimization without changing the artwork.
+The temple illustrations were created with the **built-in image_gen tool**, then copied into this workspace. Sharp performs PNG-to-WebP format optimization without changing the artwork.
 
-| Asset                            | Use                                 |
-| -------------------------------- | ----------------------------------- |
-| public/images/temple-portal.webp | Full-height temple-door opening     |
-| public/images/temple-mandap.webp | Ivory hero and wedding illustration |
+| Asset                                  | Use                                                            |
+| -------------------------------------- | -------------------------------------------------------------- |
+| public/images/temple-portal.webp       | Full-height temple-door opening                                |
+| public/images/wedding-homa-mandap.webp | Active hero: wedding mandap with sacred fire and homa kundam   |
+| public/images/temple-mandap.webp       | Earlier ivory mandap illustration, retained but unused         |
+| public/images/vinayagar.webp           | Original Vinayagar symbol from the supplied printed invitation |
 
-The two active WebP files total 671,000 bytes. next/image serves responsive variants. PNG originals and the removed blessings illustration are retained only in the local recovery ZIP, .qa/cleanup-before.zip.
+The active hero artwork, **public/images/wedding-homa-mandap.webp**, is 1024 × 1536 and 363,314 bytes, generated with the built-in image_gen tool on 23 October 2026 and optimized with Sharp at WebP quality 88. It contains a decorated wedding setting with a prominent homa kundam and sacred fire. The active portal and hero artwork total 750,184 bytes. next/image serves responsive variants. Earlier PNG originals and the removed blessings illustration are retained in the local recovery ZIP, .qa/cleanup-before.zip.
 
-The figures are illustrations, not portraits of the named couple. Real individual photos can be configured in invitation.groom.photo and invitation.bride.photo. Gold arched frames display initials until photos are supplied.
+The active wedding mandap artwork contains no people. The individual groom and bride portraits are the actual photos supplied by the user on 23 October 2026. Originals are preserved as assets/photos/groom.png and assets/photos/bride.png. Their optimized public/images/groom.webp and public/images/bride.webp versions preserve the original dimensions and transparency; no retouching was applied. Run bun scripts/optimize-portraits.ts to regenerate the WebP copies. The portraits are configured in invitation.groom.photo and invitation.bride.photo. Each photo has a `crop` box (source pixels) so both portraits show the same head-to-waist framing, shoulder width and eye line; the bride photo is full-length, so it is shown zoomed in. Re-measure the crops if either photo is replaced.
+
+The user-supplied printed invitation is preserved as **assets/invitation-reference.jpg**. **scripts/extract-invitation-art.ts** crops its original Vinayagar symbol into a lossless WebP without redrawing it. CSS blends the white background with the page and gives the opening-cover copy a warm gold appearance. The eleven family welcome verses and Tamil wedding note are transcribed from this card in **src/lib/wedding-config.ts**. The separate invitation heading and date banner were removed at the user's request. Printer contact details and decorative borders are not used on the website.
 
 ## Final generation prompt set
 
@@ -37,3 +41,5 @@ Original cinematic illustration for a Tamil wedding invitation, portrait 1024x15
 Cormorant Garamond, Noto Sans Tamil, and Manrope are optimized and self-hosted by next/font/google. Native SVG garlands and dividers and CSS jasmine petals are original code-based decoration.
 
 Earlier stock images and garland artwork are preserved but unused in the redesigned site. Their earlier source information is retained in legacy/.
+
+The family-at-home picture in the "With love, from all of us" section is a hand-drawn SVG illustration in src/components/wedding/family-home.tsx (smiling grandparents, parents and two children in front of a traditional Tamil house). It does not depict real family members.

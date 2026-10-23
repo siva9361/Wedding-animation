@@ -1,18 +1,35 @@
 "use client";
 import Image from "next/image";
 import { ArrowDown, ArrowUpRight, Clock3, MapPin } from "lucide-react";
-import { useRef, type Ref } from "react";
+import { useRef, type CSSProperties, type Ref } from "react";
 import { useInvitationMotion } from "@/lib/use-invitation-motion";
 import {
   invitation,
   venueSearchUrl,
   type InvitationEvent,
+  type InvitationPhoto,
   type InvitationPerson,
 } from "@/lib/wedding-config";
-import { RoyalDivider, Toran } from "./temple-ornaments";
+import { HomaFire, Mandala, RoyalDivider, Toran } from "./temple-ornaments";
 import { Countdown } from "./countdown";
+import { FamilyHome } from "./family-home";
+
+// Scales and offsets the photo so only its crop box fills the frame.
+function cropStyle({ width, height, crop }: InvitationPhoto): CSSProperties {
+  return {
+    width: `${(width / crop.width) * 100}%`,
+    height: `${(height / crop.height) * 100}%`,
+    left: `${(-crop.x / crop.width) * 100}%`,
+    top: `${(-crop.y / crop.height) * 100}%`,
+    position: "absolute",
+    maxWidth: "none",
+    objectFit: "cover",
+    transformOrigin: `${((crop.x + crop.width / 2) / width) * 100}% ${((crop.y + crop.height / 2) / height) * 100}%`,
+  };
+}
 
 function PersonPortrait({ person, label }: { person: InvitationPerson; label: string }) {
+  const zoom = person.photo ? person.photo.width / person.photo.crop.width : 1;
   return (
     <div
       className="person-portrait"
@@ -24,9 +41,10 @@ function PersonPortrait({ person, label }: { person: InvitationPerson; label: st
           <Image
             src={person.photo.src}
             alt={person.photo.alt}
-            fill
-            sizes="(max-width: 700px) 196px, 240px"
-            style={{ objectPosition: person.photo.position || "50% 35%" }}
+            width={person.photo.width}
+            height={person.photo.height}
+            sizes={`(max-width: 700px) ${Math.round(196 * zoom)}px, ${Math.round(240 * zoom)}px`}
+            style={cropStyle(person.photo)}
           />
         ) : (
           <div className="portrait-placeholder" aria-hidden="true" lang="en">
@@ -36,6 +54,37 @@ function PersonPortrait({ person, label }: { person: InvitationPerson; label: st
         )}
       </div>
     </div>
+  );
+}
+
+function FamilyCard({ person, side }: { person: InvitationPerson; side: "groom" | "bride" }) {
+  return (
+    <section data-reveal="">
+      <div className="family-card">
+        <p className="eyebrow" lang="en">
+          {side === "groom" ? "The groom" : "The bride"}
+        </p>
+        <PersonPortrait
+          person={person}
+          label={side === "groom" ? "Groom's photo" : "Bride's photo"}
+        />
+        <h3 lang="en">{person.englishName}</h3>
+        <p className="family-tamil-name">{person.name}</p>
+        <p className="qualification" lang="en">
+          {person.qualification}
+        </p>
+        <RoyalDivider />
+        <p className="family-role" lang="en">
+          {side === "groom" ? "Son of" : "Daughter of"}
+        </p>
+        {person.parents.map((parent) => (
+          <p className="parent-name" key={parent}>
+            {parent}
+          </p>
+        ))}
+        <p className="family-address">{person.address}</p>
+      </div>
+    </section>
   );
 }
 
@@ -91,6 +140,11 @@ function Celebration({ event, dark = false }: { event: InvitationEvent; dark?: b
             <span className="occasion-tamil-day">{event.day} · IST</span>
           </div>
         </div>
+        {event.note && (
+          <p className="occasion-note" data-reveal="">
+            {event.note}
+          </p>
+        )}
         <div className="venue-card" data-reveal="">
           <p className="eyebrow" lang="en">
             {dark ? "Reception venue" : "Wedding venue"}
@@ -137,28 +191,40 @@ export function InvitationDetails({
       <section className="royal-hero" aria-label="The beginning of our forever">
         <div className="hero-art">
           <Image
-            src="/images/temple-mandap.webp"
-            alt="Original illustration of a traditional Tamil wedding mandap with jasmine garlands and brass lamps"
+            src="/images/wedding-homa-mandap.webp"
+            alt="Traditional Tamil wedding mandap with flower garlands, brass lamps and a glowing sacred fire in a homa kundam"
             fill
             loading="eager"
             fetchPriority="high"
             sizes="(max-width: 800px) 100vw, 900px"
           />
+          <HomaFire />
         </div>
-        <div className="hero-heading">
+        <div className="hero-content">
+          <Image
+            className="hero-vinayagar"
+            src="/images/vinayagar.webp"
+            alt="விநாயகர்"
+            width={190}
+            height={255}
+            loading="eager"
+            sizes="70px"
+          />
           <p className="hero-blessing">{invitation.blessing}</p>
-          <h1 ref={headingRef} tabIndex={-1} className="royal-names" lang="en">
-            <span>{invitation.groom.englishName}</span>
-            <em>Weds</em>
-            <span>{invitation.bride.englishName}</span>
-          </h1>
-          <p className="hero-tamil-names">
-            {invitation.groom.name} <span>&</span> {invitation.bride.name}
-          </p>
-          <p className="hero-date" lang="en">
-            12 NOVEMBER 2026 · KANGEYAM
-          </p>
-          {reception && <Countdown date={reception.date} />}
+          <div className="hero-heading">
+            <h1 ref={headingRef} tabIndex={-1} className="royal-names" lang="en">
+              <span>{invitation.groom.englishName}</span>
+              <em>Weds</em>
+              <span>{invitation.bride.englishName}</span>
+            </h1>
+            <p className="hero-tamil-names">
+              {invitation.groom.name} <span>&</span> {invitation.bride.name}
+            </p>
+            <p className="hero-date" lang="en">
+              12 NOVEMBER 2026 · KANGEYAM
+            </p>
+            {reception && <Countdown date={reception.date} />}
+          </div>
         </div>
         <a href="#families" className="discover-link" lang="en">
           Discover our invitation <ArrowDown size={16} />
@@ -166,11 +232,12 @@ export function InvitationDetails({
       </section>
       <section className="families-scene" id="families">
         <Toran />
+        <Mandala className="scene-mandala" />
         <div className="families-content">
-          <p className="eyebrow" lang="en" data-reveal="">
+          <p className="eyebrow ornate-eyebrow" lang="en" data-reveal="">
             With the blessings of
           </p>
-          <h2 className="section-title" lang="en" data-reveal="">
+          <h2 className="section-title shimmer-title" lang="en" data-reveal="">
             Our Families
           </h2>
           <RoyalDivider />
@@ -178,56 +245,43 @@ export function InvitationDetails({
             {invitation.message}
           </p>
           <div className="families">
-            <section data-reveal="">
-              <p className="eyebrow" lang="en">
-                The groom
-              </p>
-              <PersonPortrait person={invitation.groom} label="Groom's photo" />
-              <h3 lang="en">{invitation.groom.englishName}</h3>
-              <p className="family-tamil-name">{invitation.groom.name}</p>
-              <p className="qualification" lang="en">
-                {invitation.groom.qualification}
-              </p>
-              <RoyalDivider />
-              <p className="family-role" lang="en">
-                Son of
-              </p>
-              {invitation.groom.parents.map((parent) => (
-                <p className="parent-name" key={parent}>
-                  {parent}
-                </p>
-              ))}
-              <p className="family-address">{invitation.groom.address}</p>
-            </section>
+            <FamilyCard person={invitation.groom} side="groom" />
             <span className="families-and" lang="en">
-              And
+              <span>And</span>
             </span>
-            <section data-reveal="">
-              <p className="eyebrow" lang="en">
-                The bride
-              </p>
-              <PersonPortrait person={invitation.bride} label="Bride's photo" />
-              <h3 lang="en">{invitation.bride.englishName}</h3>
-              <p className="family-tamil-name">{invitation.bride.name}</p>
-              <p className="qualification" lang="en">
-                {invitation.bride.qualification}
-              </p>
-              <RoyalDivider />
-              <p className="family-role" lang="en">
-                Daughter of
-              </p>
-              {invitation.bride.parents.map((parent) => (
-                <p className="parent-name" key={parent}>
-                  {parent}
-                </p>
-              ))}
-              <p className="family-address">{invitation.bride.address}</p>
-            </section>
+            <FamilyCard person={invitation.bride} side="bride" />
           </div>
         </div>
       </section>
       {wedding && <Celebration event={wedding} />}
       {reception && <Celebration event={reception} dark />}
+      <section className="invitation-verses" aria-labelledby="welcome-verses-title">
+        <Mandala className="scene-mandala" />
+        <div className="verses-panel">
+          <p className="eyebrow ornate-eyebrow" lang="en" data-reveal="">
+            With love, from all of us
+          </p>
+          <h2 id="welcome-verses-title" data-reveal="">
+            {invitation.welcomeVerses.title}
+          </h2>
+          <RoyalDivider />
+          <div className="verses-layout">
+            <FamilyHome />
+            <blockquote>
+              {invitation.welcomeVerses.lines.map((line, i) => (
+                <div
+                  className="verse-chip"
+                  key={line}
+                  data-reveal=""
+                  style={{ "--i": i } as CSSProperties}
+                >
+                  <p>{line}</p>
+                </div>
+              ))}
+            </blockquote>
+          </div>
+        </div>
+      </section>
       <footer className="royal-finale" data-reveal="">
         <p className="finale-tamil">{invitation.welcome}</p>
         <p className="finale-family">{invitation.closing}</p>

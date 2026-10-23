@@ -7,7 +7,7 @@ import { InvitationCover } from "./invitation-cover";
 import { InvitationDetails } from "./invitation-details";
 
 const openedKey = "vignesh-sandhya:temple-invitation:v2";
-const openingDuration = 3200;
+const openingDuration = 6500;
 export function SingleInvitation() {
   const [view, setView] = useState<"cover" | "opening" | "details">("cover");
   const heading = useRef<HTMLHeadingElement>(null);

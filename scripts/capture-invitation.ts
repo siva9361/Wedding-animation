@@ -13,7 +13,9 @@ await page
 await page.screenshot({ path: ".qa/invitation-cover-final.png" });
 await page.getByRole("button", { name: /Open invitation/i }).click();
 await expect(page.getByRole("article")).toHaveCSS("opacity", "1");
-await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
+await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
+  timeout: 10000,
+});
 await page.locator(".hero-art img").evaluate((element) => (element as HTMLImageElement).decode());
 for (
   let y = 0;
@@ -37,7 +39,9 @@ await page
 await page.screenshot({ path: ".qa/invitation-cover-mobile.png" });
 await page.getByRole("button", { name: /Open invitation/i }).click();
 await page.getByRole("heading", { name: "Vignesh Weds Sandhya" }).waitFor();
-await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
+await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
+  timeout: 10000,
+});
 await page.locator(".hero-art img").evaluate((element) => (element as HTMLImageElement).decode());
 for (
   let y = 0;

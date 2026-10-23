@@ -5,6 +5,11 @@ test("temple doors open into one invitation with the family's actual details", a
   await page.goto("/");
   await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "You are invited" })).toBeVisible();
+  const vinayagar = page.getByRole("img", { name: "விநாயகர்", exact: true });
+  await expect(vinayagar).toBeVisible();
+  await expect
+    .poll(() => vinayagar.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+    .toBeGreaterThan(0);
   await expect(page.locator(".gate-door")).toHaveCount(2);
   await expect(page.getByRole("article")).toHaveCount(0);
   await page.getByRole("button", { name: /Open invitation/i }).click();
@@ -12,6 +17,21 @@ test("temple doors open into one invitation with the family's actual details", a
   await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
   expect(new URL(page.url()).pathname).toBe("/");
   await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
+  await expect(page.getByText("திருமண வரவேற்பு விழா அழைப்பிதழ்", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".invitation-intro, .intro-date")).toHaveCount(0);
+  await expect(page.locator(".hero-vinayagar")).toBeVisible();
+  const openingLayout = await page.locator(".hero-content").evaluate((element) => {
+    const image = element.querySelector(".hero-vinayagar")!.getBoundingClientRect();
+    const names = element.querySelector("h1")!.getBoundingClientRect();
+    return { imageBottom: image.bottom, namesTop: names.top };
+  });
+  expect(openingLayout.imageBottom).toBeLessThan(openingLayout.namesTop);
+  await expect(page.locator(".invitation-verses blockquote p")).toHaveCount(11);
+  await expect(page.locator(".invitation-verses")).toContainText(
+    "நல்வழி காட்டிய தாத்தாக்கள், பாட்டிகள்",
+  );
+  await expect(page.locator(".invitation-verses")).toContainText("நெஞ்சிற்கினிய நண்பர்கள்");
+  await expect(page.locator("#wedding .occasion-note")).toContainText("ஐப்பசி மாதம் 27-ஆம் நாள்");
   await expect(page.locator(".hero-tamil-names")).toContainText("N. விக்னேஷ்");
   await expect(page.locator(".hero-tamil-names")).toContainText("S. சந்தியா");
   await expect(page.locator("#reception")).toContainText("12.11.2026");
@@ -24,6 +44,15 @@ test("temple doors open into one invitation with the family's actual details", a
   await expect(page.locator(".families")).toContainText("திரு. T. சுரேஷ்");
   await expect(page.locator("nav, form")).toHaveCount(0);
   await expect(page.locator(".person-portrait")).toHaveCount(2);
+  await expect(page.locator(".portrait-placeholder")).toHaveCount(0);
+  for (const name of ["மணமகன் N. விக்னேஷ்", "மணமகள் S. சந்தியா"]) {
+    const portrait = page.getByRole("img", { name, exact: true });
+    await portrait.scrollIntoViewIfNeeded();
+    await expect(portrait).toBeVisible();
+    await expect
+      .poll(() => portrait.evaluate((element) => (element as HTMLImageElement).naturalWidth))
+      .toBeGreaterThan(0);
+  }
   await expect(page.locator(".blessings-scene, .falling-petals")).toHaveCount(0);
   for (const link of await page
     .locator("a")
@@ -177,4 +206,33 @@ test("mobile discovery scrolls gently and reveals the family section", async ({ 
   await expect(page.locator("#families h2")).toHaveCSS("opacity", "1");
   await page.locator("#wedding").scrollIntoViewIfNeeded();
   await expect(page.locator("#wedding h2")).toHaveCSS("opacity", "1");
+});
+
+test("phone doors remain mid-opening after three seconds", async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 375, height: 812 },
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: "no-preference",
+  });
+  const page = await context.newPage();
+  try {
+    await page.goto(process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:3000");
+    await page.getByRole("button", { name: /Open invitation/i }).tap();
+    await page.waitForTimeout(3000);
+    await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toBeVisible();
+    const door = await page.locator(".gate-door-left").evaluate((element) => {
+      const style = getComputedStyle(element);
+      const matrix = new DOMMatrixReadOnly(style.transform);
+      return { degrees: (Math.acos(matrix.m11) * 180) / Math.PI, opacity: Number(style.opacity) };
+    });
+    expect(door.degrees).toBeGreaterThan(20);
+    expect(door.degrees).toBeLessThan(85);
+    expect(door.opacity).toBe(1);
+    await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
+    await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
+  } finally {
+    await context.close();
+  }
 });
