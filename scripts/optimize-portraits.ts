@@ -1,7 +1,7 @@
 import sharp from "sharp";
 
 // Format conversion only. Keep the supplied photos, dimensions and transparency.
-for (const person of ["groom", "bride"]) {
+for (const person of ["groom", "bride", "couple"]) {
   const original = `assets/photos/${person}.png`;
   const destination = `public/images/${person}.webp`;
   const metadata = await sharp(original).metadata();

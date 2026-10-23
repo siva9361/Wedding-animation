@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { invitation } from "@/lib/wedding-config";
-import { PortalLampFlames, RoyalDivider } from "./temple-ornaments";
+import { PortalGarlandSway, PortalLampFlames, RoyalDivider } from "./temple-ornaments";
 
 export function InvitationCover({ opening, onOpen }: { opening: boolean; onOpen: () => void }) {
   const reception =
@@ -34,6 +34,7 @@ export function InvitationCover({ opening, onOpen }: { opening: boolean; onOpen:
               fetchPriority="high"
               sizes="(max-width: 650px) 100vw, 670px"
             />
+            <PortalGarlandSway />
             <PortalLampFlames />
           </div>
         </div>
@@ -46,6 +47,7 @@ export function InvitationCover({ opening, onOpen }: { opening: boolean; onOpen:
               loading="eager"
               sizes="(max-width: 650px) 100vw, 670px"
             />
+            <PortalGarlandSway />
             <PortalLampFlames />
           </div>
         </div>
