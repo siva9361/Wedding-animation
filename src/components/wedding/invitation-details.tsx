@@ -1,10 +1,11 @@
 "use client";
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Clock3, MapPin } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Clock3, MapPin, Phone } from "lucide-react";
 import { useRef, type CSSProperties, type Ref } from "react";
 import { useInvitationMotion } from "@/lib/use-invitation-motion";
 import {
   invitation,
+  maker,
   venueSearchUrl,
   type InvitationEvent,
   type InvitationPhoto,
@@ -13,6 +14,15 @@ import {
 import { HomaFire, Mandala, RoyalDivider } from "./temple-ornaments";
 import { SwayingToran } from "./swaying-toran";
 import { Countdown } from "./countdown";
+import { CoupleCartoon } from "./couple-cartoon";
+
+// Watercolor corners cut from the family's floral card by scripts/extract-floral-art.ts.
+const floralCorners = [
+  { name: "top-left", width: 500, height: 580 },
+  { name: "top-right", width: 536, height: 660 },
+  { name: "bottom-left", width: 470, height: 620 },
+  { name: "bottom-right", width: 466, height: 460 },
+];
 
 // Scales and offsets the photo so only its crop box fills the frame.
 function cropStyle({ width, height, crop }: InvitationPhoto): CSSProperties {
@@ -107,6 +117,11 @@ function Celebration({ event, dark = false }: { event: InvitationEvent; dark?: b
     >
       <SwayingToran />
       <div className="celebration-inner">
+        {!dark && (
+          <div className="couple-cartoon-wrap" data-reveal="">
+            <CoupleCartoon />
+          </div>
+        )}
         <h2 className="section-title" lang="en" data-reveal="">
           {dark ? "The Reception" : "The Wedding"}
         </h2>
@@ -230,10 +245,30 @@ export function InvitationDetails({
           Discover our invitation <ArrowDown size={16} />
         </a>
       </section>
-      <section className="families-scene" id="families">
-        <SwayingToran />
-        <Mandala className="scene-mandala" />
+      <section className="families-scene floral-scene" id="families">
+        <div className="floral-corners" aria-hidden="true">
+          {floralCorners.map((corner) => (
+            <Image
+              key={corner.name}
+              className={"floral-corner floral-" + corner.name}
+              src={"/images/floral-" + corner.name + ".webp"}
+              alt=""
+              width={corner.width}
+              height={corner.height}
+              sizes="(max-width: 700px) 46vw, 32vw"
+            />
+          ))}
+        </div>
         <div className="families-content">
+          <Image
+            className="families-couple"
+            src="/images/floral-couple.webp"
+            alt="Cartoon of the groom and bride holding hands inside a floral wreath"
+            width={400}
+            height={300}
+            sizes="134px"
+            data-reveal=""
+          />
           <p className="eyebrow ornate-eyebrow" lang="en" data-reveal="">
             With the blessings of
           </p>
@@ -295,6 +330,28 @@ export function InvitationDetails({
         <p className="finale-tamil">{invitation.welcome}</p>
         <p className="finale-family">{invitation.closing}</p>
       </footer>
+      <div className="maker-credit" lang="en">
+        <Image
+          className="maker-logo"
+          src="/images/mecatronix-logo.webp"
+          alt="Mecatronix logo"
+          width={155}
+          height={192}
+          sizes="48px"
+        />
+        <div className="maker-text">
+          <span className="maker-eyebrow">Designed &amp; crafted by</span>
+          <strong aria-label={maker.name}>{maker.brand}</strong>
+          <span className="maker-company">
+            Software Development<span className="maker-dot"> · </span>
+            <span className="maker-city">{maker.city}</span>
+          </span>
+          <a className="maker-phone" href={"tel:" + maker.tel}>
+            <Phone size={12} />
+            {maker.phone}
+          </a>
+        </div>
+      </div>
     </article>
   );
 }

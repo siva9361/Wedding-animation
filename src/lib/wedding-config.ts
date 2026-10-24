@@ -118,6 +118,18 @@ export const invitation: InvitationConfig = {
     },
   ],
 };
+// The company credited at the bottom of the page.
+export const maker = {
+  brand: "MECATRONIX",
+  name: "Mecatronix Software Development",
+  city: "Coimbatore",
+  phone: "+91 83004 54800",
+  tel: "+918300454800",
+};
+// Songs that play once the doors open, tried in order: the first file that exists is used.
+// Put the family's "Idicha Pacharisi" MP3 at public/audio/idicha-pacharisi.mp3; until then
+// the site is silent and the music button stays hidden.
+export const weddingSongs = ["/audio/idicha-pacharisi.mp3"];
 export function venueSearchUrl(event: InvitationEvent) {
   return (
     "https://www.google.com/maps/search/?api=1&query=" +

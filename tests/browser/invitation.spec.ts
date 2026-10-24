@@ -1,5 +1,15 @@
-import { test, expect } from "@playwright/test";
-const key = "vignesh-sandhya:temple-invitation:v2";
+import { existsSync } from "node:fs";
+import { test, expect, type Page } from "@playwright/test";
+
+// Every visit starts at the doors; the full opening takes 8 seconds without reduced motion.
+const openingTimeout = 15000;
+async function openInvitation(page: Page) {
+  await page.getByRole("button", { name: /Open invitation/i }).click();
+  await expect(page.getByRole("article")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
+    timeout: openingTimeout,
+  });
+}
 
 test("temple doors open into one invitation with the family's actual details", async ({ page }) => {
   await page.goto("/");
@@ -12,9 +22,7 @@ test("temple doors open into one invitation with the family's actual details", a
     .toBeGreaterThan(0);
   await expect(page.locator(".gate-door")).toHaveCount(2);
   await expect(page.getByRole("article")).toHaveCount(0);
-  await page.getByRole("button", { name: /Open invitation/i }).click();
-  await expect(page.getByRole("article")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
+  await openInvitation(page);
   expect(new URL(page.url()).pathname).toBe("/");
   await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
   await expect(page.getByText("திருமண வரவேற்பு விழா அழைப்பிதழ்", { exact: true })).toHaveCount(0);
@@ -57,12 +65,19 @@ test("temple doors open into one invitation with the family's actual details", a
   for (const link of await page
     .locator("a")
     .evaluateAll((elements) => elements.map((element) => element.getAttribute("href") ?? ""))) {
-    expect(link.startsWith("https://www.google.com/maps/search/") || link.startsWith("#")).toBe(
-      true,
-    );
+    expect(
+      link.startsWith("https://www.google.com/maps/search/") ||
+        link.startsWith("#") ||
+        link === "tel:+918300454800",
+    ).toBe(true);
   }
   await page.reload();
-  await expect(page.getByRole("article")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "You are invited" })).toBeVisible();
+  await expect(page.getByRole("article")).toHaveCount(0);
+  await page.locator(".gate-door-left").click({ force: true });
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
+    timeout: openingTimeout,
+  });
   await page.getByRole("button", { name: "அழைப்பிதழை மீண்டும் திறக்க", exact: true }).click();
   await expect(page.getByRole("heading", { name: "You are invited" })).toBeVisible();
   await expect(page.getByRole("article")).toHaveCount(0);
@@ -77,11 +92,10 @@ test("phone and desktop layouts have no clipped names, horizontal overflow or hy
     if (message.type() === "error") errors.push(message.text());
   });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.addInitScript((storageKey) => sessionStorage.setItem(storageKey, "yes"), key);
   for (const width of [320, 375, 430, 768, 1440, 3840]) {
     await page.setViewportSize({ width, height: width > 2000 ? 2160 : 900 });
     await page.goto("/");
-    await expect(page.getByRole("article")).toBeVisible();
+    await openInvitation(page);
     await page.evaluate(() => document.fonts.ready);
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
@@ -146,8 +160,9 @@ test("a past event shows a completed message instead of negative countdown value
   page,
 }) => {
   await page.clock.setFixedTime(new Date("2028-01-01T00:00:00Z"));
-  await page.addInitScript((storageKey) => sessionStorage.setItem(storageKey, "yes"), key);
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
+  await openInvitation(page);
   await expect(page.getByText("Our beautiful beginning is here.")).toBeVisible();
   await expect(page.locator(".royal-countdown")).toHaveCount(0);
 });
@@ -159,7 +174,9 @@ test("the slower opening and wheel glide remain interruptible", async ({ page })
   await page.waitForTimeout(900);
   await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Opening your invitation/i })).toBeDisabled();
-  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
+    timeout: openingTimeout,
+  });
 
   await page.mouse.move(600, 400);
   await page.mouse.wheel(0, 400);
@@ -191,8 +208,8 @@ test("the slower opening and wheel glide remain interruptible", async ({ page })
 test("mobile discovery scrolls gently and reveals the family section", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.addInitScript((storageKey) => sessionStorage.setItem(storageKey, "yes"), key);
   await page.goto("/");
+  await openInvitation(page);
   await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
   const target = await page
     .locator("#families")
@@ -229,10 +246,31 @@ test("phone doors remain mid-opening after three seconds", async ({ browser }) =
     expect(door.degrees).toBeGreaterThan(20);
     expect(door.degrees).toBeLessThan(85);
     expect(door.opacity).toBe(1);
-    await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0);
+    await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
+      timeout: openingTimeout,
+    });
     await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
     await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
   } finally {
     await context.close();
   }
+});
+
+// The song is optional: without public/audio/idicha-pacharisi.mp3 the site is silent.
+const hasSong = existsSync("public/audio/idicha-pacharisi.mp3");
+test("tapping the doors opens them slowly and starts the song if one is supplied", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await expect(page.locator("audio")).toHaveCount(hasSong ? 1 : 0);
+  await page.locator(".gate-door-right").click({ force: true });
+  await expect(page.getByRole("button", { name: /Opening your invitation/i })).toBeDisabled();
+  if (hasSong) await expect(page.locator("audio")).toHaveJSProperty("paused", false);
+  await page.waitForTimeout(4000);
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
+    timeout: openingTimeout,
+  });
+  await expect(page.locator(".floating-music")).toHaveCount(hasSong ? 1 : 0);
 });

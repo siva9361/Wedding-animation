@@ -199,10 +199,12 @@ export function PortalGarlandSway() {
                 height: `${(1536 / height) * 100}%`,
               }}
             >
+              {/* Same URL as the door art, so it must also be eager or Next flags the LCP. */}
               <Image
                 src="/images/temple-portal.webp"
                 alt=""
                 fill
+                loading="eager"
                 sizes="(max-width: 650px) 100vw, 670px"
               />
             </div>
