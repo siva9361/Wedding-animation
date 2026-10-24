@@ -38,6 +38,14 @@ Original high-end South Indian wedding invitation illustration background, portr
 
 Original cinematic illustration for a Tamil wedding invitation, portrait 1024x1536. View from behind a South Indian bride and groom standing together in a magnificent ancient Tamil stone temple corridor, distant sanctum glowing warm amber. Bride wears a deep maroon-red silk saree with antique gold border, beautiful long dark braid adorned with a graceful white jasmine garland. Groom wears a cream shirt and ivory veshti with gold border. Their faces are not visible, they are anonymous illustrative figures, not portraits of actual people. Dense gold temple carvings and warm oil lamps near side edges, romantic drifting white jasmine petals. Frame the couple centered in the lower third, occupying y=45 to 85 percent. Upper third is moody dark golden-brown temple architecture with usable shadow area for a heading. Fine glowing brass details and strong deep brown contrast, luxurious cinematic painterly-realism, original image, no text, no logos, no watermark, no hands holding phone, no UI.
 
+The small mappillai-and-ponnu cartoon above "The Wedding" heading is a hand-drawn SVG in src/components/wedding/couple-cartoon.tsx: a groom in silk shirt, veshti and angavastram and a bride in a red silk saree with a jasmine braid, both garlanded and holding hands. It is illustrative and not a likeness of the couple.
+
+The family's floral invitation card, supplied by the user on 24 October 2026, is preserved as assets/floral-invitation-reference.png (1066 × 1599). scripts/extract-floral-art.ts cuts its four watercolor corners and the cartoon couple into public/images/floral-top-left.webp, floral-top-right.webp, floral-bottom-left.webp, floral-bottom-right.webp and floral-couple.webp. The card paper becomes transparency, card text is masked out, and edges are feathered; the artwork is not redrawn. The Our Families section uses these pieces on matching paper (#f8f6ef).
+
+No music is bundled. The site plays public/audio/idicha-pacharisi.mp3 when the family supplies it; use a track you have the right to play.
+
+The Mecatronix logo, supplied by the user on 24 October 2026, is preserved as assets/mecatronix-logo.png. scripts/optimize-logo.ts turns its black background into transparency, trims it and saves public/images/mecatronix-logo.webp for the "Designed & crafted by MECATRONIX" credit at the bottom of the page.
+
 ## Typography and decorative elements
 
 Cormorant Garamond, Noto Sans Tamil, and Manrope are optimized and self-hosted by next/font/google. Native SVG garlands and dividers and CSS jasmine petals are original code-based decoration.

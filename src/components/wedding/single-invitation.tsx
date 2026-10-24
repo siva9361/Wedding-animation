@@ -5,27 +5,22 @@ import { RotateCcw } from "lucide-react";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { InvitationCover } from "./invitation-cover";
 import { InvitationDetails } from "./invitation-details";
+import { WeddingMusic, type WeddingMusicHandle } from "./wedding-music";
 
-const openedKey = "vignesh-sandhya:temple-invitation:v2";
-const openingDuration = 6500;
-export function SingleInvitation() {
+// Every visit begins at the closed temple doors; a tap opens them slowly and starts the song.
+const openingDuration = 8000;
+export function SingleInvitation({ song }: { song: string | undefined }) {
   const [view, setView] = useState<"cover" | "opening" | "details">("cover");
   const heading = useRef<HTMLHeadingElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const music = useRef<WeddingMusicHandle>(null);
   const reduce = useReducedMotion();
+  // The opening timer belongs to the "opening" view, so a re-run effect restarts it
+  // instead of losing it and leaving the doors stuck half open.
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      try {
-        if (sessionStorage.getItem(openedKey) === "yes") setView("details");
-      } catch {
-        /* Storage is optional. */
-      }
-    });
-    return () => {
-      cancelAnimationFrame(frame);
-      if (timer.current) clearTimeout(timer.current);
-    };
-  }, []);
+    if (view !== "opening") return;
+    const timer = setTimeout(() => setView("details"), reduce ? 80 : openingDuration);
+    return () => clearTimeout(timer);
+  }, [view, reduce]);
   useEffect(() => {
     if (view === "details") {
       heading.current?.focus({ preventScroll: true });
@@ -40,18 +35,8 @@ export function SingleInvitation() {
 
   function open() {
     if (view !== "cover") return;
+    music.current?.play();
     setView("opening");
-    timer.current = setTimeout(
-      () => {
-        try {
-          sessionStorage.setItem(openedKey, "yes");
-        } catch {
-          /* Opening works without storage. */
-        }
-        setView("details");
-      },
-      reduce ? 80 : openingDuration,
-    );
   }
   function replay() {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -72,6 +57,7 @@ export function SingleInvitation() {
         </div>
       )}
       {view !== "details" && <InvitationCover opening={view === "opening"} onOpen={open} />}
+      <WeddingMusic ref={music} song={song} visible={view !== "cover"} />
       {view === "details" && (
         <button
           className="floating-replay"

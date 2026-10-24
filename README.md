@@ -29,6 +29,16 @@ Dates and times use Indian Standard Time. Map buttons search the venue names and
 
 The Vinayagar artwork is cropped directly from **assets/invitation-reference.jpg** and appears on the opening cover and above the couple names in the hero. The separate Tamil invitation heading and date banner have been removed. Run `bun run scripts/extract-invitation-art.ts` to recreate **public/images/vinayagar.webp**. The card's eleven welcome verses are editable in `invitation.welcomeVerses`; the printed Tamil wedding wording is in the wedding event's `note`.
 
+## Wedding song
+
+The song starts when the guest taps "Open invitation", plays on a loop across the whole page, and pauses while the tab is hidden. A round button beside the replay button pauses and resumes it. If the file is missing, the button stays hidden and the site works silently.
+
+No song is bundled. Copy the family's "Idicha Pacharisi" MP3 to **public/audio/idicha-pacharisi.mp3** (exactly this name) and it plays from the next page load. To use a different song, change `weddingSongs` in **src/lib/wedding-config.ts**; the first file in the list that exists is played.
+
+## Our Families design
+
+The family section follows the supplied floral card (**assets/floral-invitation-reference.png**): watercolor peony and eucalyptus corners, the card's cartoon couple above the heading, and blush-and-sage family cards on matching paper. `bun run scripts/extract-floral-art.ts` recreates the five **public/images/floral-\*.webp** cutouts.
+
 ## Groom and bride photos
 
 The supplied photos now appear in matching gold arched frames. Original PNGs are preserved in **assets/photos/**; optimized WebP copies are served from **public/images/**. Photo paths and crop positions are configured in **src/lib/wedding-config.ts**:
@@ -45,13 +55,13 @@ The optional `position` controls the crop. Portrait images load when near the vi
 ## Performance and accessibility
 
 - One content route: `/`. Old demo routes return 404.
-- The doors open gradually over 6.5 seconds on desktop and phones, or 80 ms with reduced motion. The artwork and names fade into view.
+- Every visit starts at the closed temple doors. Tapping anywhere on the doors (or the "Open invitation" button) opens them gradually over 8 seconds on desktop and phones, or 80 ms with reduced motion, and starts the wedding song. The artwork and names fade into view.
 - Sections reveal once with a soft 1.2-second fade and gentle upward movement using native IntersectionObserver and CSS.
 - Mouse-wheel scrolling eases into place; the discovery link glides to the family section over 2 seconds on desktop and mobile. Touch swipes, keyboard navigation, pinch zoom, and reduced-motion scrolling retain native behavior. Any new touch or navigation key interrupts a running glide.
 - No external animation library or petal effects. Animation frames stop when scrolling settles or the page becomes hidden.
 - The portal and wedding mandap artwork total 750,184 bytes. The two supplied portraits use optimized WebP files and load near the viewport.
 - Countdown uses a native IntersectionObserver and pauses offscreen or in a hidden tab.
-- Session storage remembers opening; replay and keyboard focus work without storage.
+- Nothing is stored in the browser; replay and keyboard focus work everywhere.
 
 The old demo source, stock imagery, unused illustrations, and original PNG files were removed from the active project. A local recovery copy is in ignored **.qa/cleanup-before.zip**. Artwork provenance and generation prompts remain in **ASSETS.md**.
 
@@ -70,4 +80,4 @@ bun run test:e2e
 bun run scripts/capture-invitation.ts
 ```
 
-Browser checks cover the one-page opening, actual Tamil details, both supplied portraits, the slower phone opening, and absence of removed sections, 320–3840 px layouts, old route removal, reduced motion, blocked storage, and completed countdowns. Screenshots are saved under ignored **.qa/**.
+Browser checks cover the one-page opening, actual Tamil details, both supplied portraits, the slower phone opening, door tap starting the song, and absence of removed sections, 320–3840 px layouts, old route removal, reduced motion, blocked storage, and completed countdowns. Screenshots are saved under ignored **.qa/**.

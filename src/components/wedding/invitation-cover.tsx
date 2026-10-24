@@ -17,6 +17,8 @@ export function InvitationCover({ opening, onOpen }: { opening: boolean; onOpen:
     <section
       className={"gate-world " + (opening ? "gate-opening" : "")}
       aria-label="Wedding invitation cover"
+      // The whole doorway is tappable; the button below keeps it reachable by keyboard.
+      onClick={onOpen}
     >
       <div className="gate-backdrop" aria-hidden="true" />
       <div className="gate-side-mark" aria-hidden="true">
@@ -74,7 +76,7 @@ export function InvitationCover({ opening, onOpen }: { opening: boolean; onOpen:
           <p className="gate-date" lang="en">
             {date}
           </p>
-          <button className="open-invitation" onClick={onOpen} disabled={opening}>
+          <button type="button" className="open-invitation" disabled={opening}>
             <span lang="en">{opening ? "Opening your invitation…" : "Open invitation"}</span>
             <ArrowRight size={16} />
           </button>

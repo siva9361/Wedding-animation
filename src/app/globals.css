@@ -101,6 +101,7 @@ svg {
   box-shadow: 0 0 70px #583f2415;
 }
 .eyebrow {
+  text-wrap: balance;
   font-family: var(--font-body), sans-serif;
   font-size: 10px;
   font-weight: 500;
@@ -207,6 +208,32 @@ svg {
   box-shadow: 0 3px 14px #29180e16;
   backdrop-filter: blur(5px);
 }
+.floating-music {
+  position: fixed;
+  z-index: 35;
+  top: 18px;
+  right: 70px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #b9985c69;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fffcf0e8;
+  color: #795428;
+  box-shadow: 0 3px 14px #29180e16;
+  backdrop-filter: blur(5px);
+}
+.floating-music[data-playing="true"] {
+  animation: music-pulse 2.4s ease-in-out infinite;
+}
+@keyframes music-pulse {
+  50% {
+    box-shadow:
+      0 3px 14px #29180e16,
+      0 0 0 6px #bd965826;
+  }
+}
 /* The full-height entrance is framed like the temple doorway in the reel. */
 .gate-world {
   position: fixed;
@@ -214,6 +241,9 @@ svg {
   z-index: 50;
   overflow: hidden;
   perspective: 1600px;
+}
+.gate-world:not(.gate-opening) {
+  cursor: pointer;
 }
 .gate-backdrop {
   position: absolute;
@@ -1321,6 +1351,173 @@ svg {
     opacity: 1;
   }
 }
+/* Our Families wears the family's floral card: watercolor peonies and eucalyptus on soft
+   paper, blush and sage cards, and the cartoon couple above the heading. */
+.families-scene.floral-scene {
+  --floral-paper: #f8f6ef;
+  --floral-ink: #4f3d40;
+  --floral-blush: #e5b9bf;
+  --floral-rose: #c27685;
+  --floral-sage: #86a586;
+  background:
+    radial-gradient(ellipse 38% 26% at 6% 48%, #f3d6d466, transparent 70%),
+    radial-gradient(ellipse 34% 24% at 95% 62%, #f1d0cd59, transparent 70%),
+    radial-gradient(ellipse 45% 20% at 50% 102%, #e3ece066, transparent 70%),
+    radial-gradient(ellipse 30% 18% at 50% 0%, #f6e1df66, transparent 70%), var(--floral-paper);
+}
+.floral-corners {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.floral-corner {
+  position: absolute;
+  height: auto;
+  animation: floral-breathe 9s ease-in-out infinite;
+}
+.floral-top-left {
+  top: 0;
+  left: 0;
+  width: clamp(170px, 30vw, 440px);
+  transform-origin: top left;
+}
+.floral-top-right {
+  top: 0;
+  right: 0;
+  width: clamp(180px, 32vw, 470px);
+  transform-origin: top right;
+  animation-delay: -3s;
+}
+.floral-bottom-left {
+  bottom: 0;
+  left: 0;
+  width: clamp(160px, 28vw, 410px);
+  transform-origin: bottom left;
+  animation-delay: -5s;
+}
+.floral-bottom-right {
+  bottom: 0;
+  right: 0;
+  width: clamp(160px, 28vw, 410px);
+  transform-origin: bottom right;
+  animation-delay: -7s;
+}
+@keyframes floral-breathe {
+  50% {
+    transform: rotate(1deg) scale(1.015);
+  }
+}
+/* The couple sits in the top band the toran used, so the section keeps its original size. */
+.families-couple {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  width: 134px;
+  height: auto;
+  margin: 0 auto 6px;
+}
+.floral-scene .families-content > .eyebrow {
+  color: #6f6360;
+}
+.floral-scene .ornate-eyebrow::before {
+  background: linear-gradient(90deg, transparent, var(--floral-sage));
+}
+.floral-scene .ornate-eyebrow::after {
+  background: linear-gradient(270deg, transparent, var(--floral-sage));
+}
+.floral-scene .shimmer-title {
+  color: var(--floral-ink);
+  background-image: linear-gradient(
+    105deg,
+    var(--floral-ink) 0%,
+    var(--floral-ink) 40%,
+    #d98c9a 50%,
+    var(--floral-ink) 60%,
+    var(--floral-ink) 100%
+  );
+}
+.floral-scene .royal-divider {
+  color: var(--floral-sage);
+}
+.floral-scene .families-welcome,
+.floral-scene .family-address {
+  color: #7d706b;
+}
+.floral-scene .family-card {
+  color: var(--floral-ink);
+  border-color: #ecc8cc;
+  background: linear-gradient(180deg, #fffefc 0%, #fdf4f2 100%);
+  box-shadow:
+    inset 0 0 0 6px #fffefc,
+    inset 0 0 0 7px #d5e1cf,
+    0 14px 40px #a8667114;
+}
+.floral-scene .family-card::after {
+  background: linear-gradient(100deg, transparent, #fff5f699 45%, #f3c9cf55 55%, transparent);
+}
+.floral-scene .family-card > .eyebrow,
+.floral-scene .qualification {
+  color: #6f8f71;
+}
+.floral-scene .family-role {
+  color: var(--floral-rose);
+}
+.floral-scene .family-card h3::after {
+  background: linear-gradient(90deg, transparent, var(--floral-rose), transparent);
+}
+.floral-scene .person-portrait {
+  border-color: var(--floral-blush);
+  background: #fffefc;
+  box-shadow: 0 12px 35px #a8667117;
+}
+.floral-scene .person-portrait-inner {
+  border-color: #d5e1cf;
+  background: radial-gradient(ellipse at 50% 30%, #fffdfb, #f5e4e3);
+}
+.floral-scene .families-and {
+  border-color: var(--floral-blush);
+  background: radial-gradient(circle at 50% 35%, #fffefc, #f9e3e4);
+  box-shadow:
+    0 0 0 6px var(--floral-paper),
+    0 0 0 7px #e5b9bf80,
+    0 10px 30px #a866711f;
+  color: var(--floral-rose);
+  animation-name: floral-and-glow;
+}
+.floral-scene .families-and::before {
+  border-color: #86a58699;
+}
+@keyframes floral-and-glow {
+  50% {
+    box-shadow:
+      0 0 0 6px var(--floral-paper),
+      0 0 0 7px var(--floral-blush),
+      0 10px 40px #d98c9a40;
+  }
+}
+@media (hover: hover) {
+  .floral-scene .family-card:hover {
+    border-color: #dfa9b1;
+    box-shadow:
+      inset 0 0 0 6px #fffefc,
+      inset 0 0 0 7px #bfd3b9,
+      0 26px 60px #a8667126,
+      0 0 40px #f3c9cf40;
+  }
+  .floral-scene .family-card:hover .person-portrait {
+    border-color: #d98c9a;
+    box-shadow:
+      0 16px 40px #a8667126,
+      0 0 0 4px #f6dcdf;
+  }
+}
+@media (max-width: 700px) {
+  .families-couple {
+    width: 124px;
+  }
+}
 /* Shared section ornaments: flanking gold rules, a shimmering title and a turning mandala. */
 .ornate-eyebrow {
   display: flex;
@@ -1400,6 +1597,55 @@ svg {
 }
 .celebration .section-title {
   margin-top: 17px;
+}
+.couple-cartoon-wrap {
+  width: 190px;
+  margin: -30px auto -6px;
+}
+.couple-cartoon {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.couple-cartoon-body {
+  transform-box: view-box;
+  transform-origin: 120px 190px;
+  animation: couple-sway 4.5s ease-in-out infinite;
+}
+.couple-cartoon-heart {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: couple-heart 1.8s ease-in-out infinite;
+}
+.couple-cartoon-sparkle {
+  animation: couple-sparkle 2.6s ease-in-out infinite;
+}
+@keyframes couple-sway {
+  0%,
+  100% {
+    transform: rotate(-1.2deg);
+  }
+  50% {
+    transform: rotate(1.2deg) translateY(-2px);
+  }
+}
+@keyframes couple-heart {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1.18);
+  }
+  40% {
+    transform: scale(0.96);
+  }
+}
+@keyframes couple-sparkle {
+  50% {
+    opacity: 0.35;
+  }
 }
 .tamil-section-title {
   font-size: 17px;
@@ -1577,6 +1823,83 @@ svg {
   color: #998266;
   margin-top: 12px;
 }
+/* Maker's credit: the Mecatronix mark on a dark bar that closes the page. */
+.maker-credit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #1f0b11, #110508);
+  border-top: 1px solid #bd965833;
+}
+.maker-logo {
+  width: 48px;
+  height: auto;
+  filter: drop-shadow(0 0 8px #d4262640);
+  transition: filter 0.6s ease;
+}
+.maker-credit:hover .maker-logo {
+  filter: drop-shadow(0 0 14px #e0303080);
+}
+.maker-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  font-family: var(--font-body), sans-serif;
+  line-height: 1.2;
+  text-align: left;
+}
+.maker-eyebrow,
+.maker-company {
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #a88f6e;
+}
+.maker-company {
+  color: #cdb48d;
+  letter-spacing: 0.16em;
+}
+@media (max-width: 380px) {
+  .maker-dot {
+    display: none;
+  }
+  .maker-city {
+    display: block;
+    margin-top: 5px;
+  }
+}
+.maker-text strong {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  color: #f4e7d0;
+}
+.maker-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: #f4e7d0;
+  text-decoration: none;
+  border-bottom: 1px solid #d4262666;
+  padding-bottom: 1px;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+.maker-phone svg {
+  color: #e0403f;
+}
+.maker-phone:hover,
+.maker-phone:focus-visible {
+  color: #fff;
+  border-color: #e0403f;
+}
 .missing-invitation {
   min-height: 100svh;
   display: flex;
@@ -1695,6 +2018,12 @@ svg {
     width: 38px;
     height: 38px;
     right: 12px;
+    top: 12px;
+  }
+  .floating-music {
+    width: 38px;
+    height: 38px;
+    right: 58px;
     top: 12px;
   }
   .royal-hero {
@@ -1841,6 +2170,16 @@ svg {
   .celebration .section-title {
     font-size: 54px;
     margin-top: 17px;
+  }
+  .floral-top-left,
+  .floral-top-right,
+  .floral-bottom-left,
+  .floral-bottom-right {
+    width: clamp(110px, 34vw, 240px);
+  }
+  .couple-cartoon-wrap {
+    width: 150px;
+    margin-top: -36px;
   }
   .tamil-section-title {
     font-size: 15px;
@@ -2063,6 +2402,37 @@ svg {
     font-size: 18px;
   }
 }
+/* Landscape phones: the doorway is only about 260px wide, so the cover copy tightens again. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .gate-vinayagar {
+    top: 15%;
+  }
+  .gate-copy .royal-divider {
+    margin: 4px auto 8px;
+  }
+  .gate-copy h1 {
+    font-size: 25px;
+    margin-top: 4px;
+  }
+  .gate-subtitle {
+    font-size: 16px;
+    margin-top: 2px;
+  }
+  .gate-tamil {
+    margin-top: 4px;
+  }
+  .gate-date {
+    margin-top: 6px;
+  }
+  .open-invitation {
+    margin-top: 10px;
+    min-height: 36px;
+  }
+  .gate-couple {
+    margin-top: 6px;
+    font-size: 14px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -2094,6 +2464,13 @@ svg {
   }
   .homa-ember {
     display: none;
+  }
+  .floral-corner,
+  .couple-cartoon-body,
+  .couple-cartoon-heart,
+  .couple-cartoon-sparkle,
+  .floating-music {
+    animation: none !important;
   }
   .families-and,
   .families-and::before,
