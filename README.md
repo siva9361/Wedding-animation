@@ -23,7 +23,7 @@ Edit **src/lib/wedding-config.ts**.
 - Groom: **N. விக்னேஷ்**, B.E. (Mech.)
 - Bride: **S. சந்தியா**, B.C.A.
 - Reception: **12 November 2026, 6–7 PM** — காயத்ரி ஹோட்டல், திருப்பூர் ரோடு, காங்கயம்.
-- Wedding: **13 November 2026, 4:45–5:45 AM** — ஸ்ரீ பொன் அழகு நாச்சியம்மன் திருக்கோவில், வெள்ளியச்சல்.
+- Wedding: **13 November 2026, 4:45–5:45 AM** — ஸ்ரீ பொன் அழகு நாச்சியம்மன் திருக்கோவில், வள்ளியரச்சல்.
 
 Dates and times use Indian Standard Time. Map buttons search the venue names and addresses from the supplied invitation.
 
