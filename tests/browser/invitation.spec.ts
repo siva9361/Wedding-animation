@@ -24,7 +24,7 @@ test("temple doors open into one invitation with the family's actual details", a
   await expect(page.getByRole("article")).toHaveCount(0);
   await openInvitation(page);
   expect(new URL(page.url()).pathname).toBe("/");
-  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhiya" })).toBeFocused();
   await expect(page.getByText("திருமண வரவேற்பு விழா அழைப்பிதழ்", { exact: true })).toHaveCount(0);
   await expect(page.locator(".invitation-intro, .intro-date")).toHaveCount(0);
   await expect(page.locator(".hero-vinayagar")).toBeVisible();
@@ -68,7 +68,9 @@ test("temple doors open into one invitation with the family's actual details", a
     expect(
       link.startsWith("https://www.google.com/maps/search/") ||
         link.startsWith("#") ||
+        ["/calendar/reception", "/calendar/wedding", "/venues", "/share"].includes(link) ||
         link === "tel:+918300454800",
+      link,
     ).toBe(true);
   }
   await page.reload();
@@ -139,6 +141,51 @@ test("old website pages remain removed", async ({ page }) => {
   }
 });
 
+test("the celebrations timeline lists the reception before the muhurtham", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await openInvitation(page);
+  const stops = page.locator(".timeline-stop");
+  await expect(stops).toHaveCount(2);
+  await expect(stops.nth(0)).toContainText("Wedding reception");
+  await expect(stops.nth(0)).toContainText("காயத்ரி ஹோட்டல்");
+  await expect(stops.nth(1)).toContainText("Wedding ceremony");
+  await expect(page.locator("#reception .save-date")).toHaveAttribute(
+    "href",
+    "/calendar/reception",
+  );
+  await expect(page.getByLabel("Countdown to the wedding reception")).toBeVisible();
+});
+
+test("calendar files carry each event's IST times and venue", async ({ request }) => {
+  const response = await request.get("/calendar/reception");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["content-type"]).toContain("text/calendar");
+  const ics = (await response.text()).replace(/\r\n /g, "");
+  expect(ics).toContain("DTSTART:20261112T123000Z");
+  expect(ics).toContain("DTEND:20261112T133000Z");
+  expect(ics).toContain("காயத்ரி ஹோட்டல்");
+  const wedding = (await (await request.get("/calendar/wedding")).text()).replace(/\r\n /g, "");
+  expect(wedding).toContain("DTSTART:20261112T231500Z");
+  expect((await request.get("/calendar/unknown")).status()).toBe(404);
+});
+
+test("venues and share pages give maps, calendar links and a QR code", async ({ page }) => {
+  await page.goto("/venues");
+  await expect(page.getByRole("heading", { name: "Venues & Maps" })).toBeVisible();
+  await expect(page.locator(".venue-detail")).toHaveCount(2);
+  await expect(page.locator(".venue-map iframe")).toHaveCount(2);
+  await expect(page.getByRole("link", { name: "Google Calendar" })).toHaveCount(2);
+  await page.getByRole("link", { name: /Back to the invitation/i }).click();
+  await expect(page.getByRole("heading", { name: "You are invited" })).toBeVisible();
+
+  await page.goto("/share");
+  await expect(page.getByRole("heading", { name: "Share the Invitation" })).toBeVisible();
+  await expect(page.locator(".share-qr canvas")).toBeVisible();
+  const whatsapp = await page.getByRole("link", { name: /Send on WhatsApp/i }).getAttribute("href");
+  expect(decodeURIComponent(whatsapp!)).toContain("Vignesh & Sandhiya");
+});
+
 test("reduced-motion opening works with storage blocked", async ({ page }) => {
   await page.addInitScript(() =>
     Object.defineProperty(window, "sessionStorage", {
@@ -150,7 +197,7 @@ test("reduced-motion opening works with storage blocked", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await page.getByRole("button", { name: /Open invitation/i }).click();
-  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused({
+  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhiya" })).toBeFocused({
     timeout: 1000,
   });
   await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
@@ -210,7 +257,7 @@ test("mobile discovery scrolls gently and reveals the family section", async ({ 
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
   await openInvitation(page);
-  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
+  await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhiya" })).toBeFocused();
   const target = await page
     .locator("#families")
     .evaluate((el) => el.getBoundingClientRect().top + scrollY - 25);
@@ -249,7 +296,7 @@ test("phone doors remain mid-opening after three seconds", async ({ browser }) =
     await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
       timeout: openingTimeout,
     });
-    await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhya" })).toBeFocused();
+    await expect(page.getByRole("heading", { name: "Vignesh Weds Sandhiya" })).toBeFocused();
     await expect(page.locator("body")).not.toHaveCSS("overflow", "hidden");
   } finally {
     await context.close();

@@ -13,8 +13,10 @@
     "format": "bun --bun prettier --write ."
   },
   "dependencies": {
+    "canvas-confetti": "1.9.4",
     "lucide-react": "1.61.0",
     "next": "16.4.2",
+    "qrcode.react": "4.2.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
@@ -22,14 +24,15 @@
     "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "4.3.3",
     "@types/bun": "1.4.3",
+    "@types/canvas-confetti": "1.9.0",
     "@types/node": "26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.2",
     "prettier": "3.9.10",
+    "sharp": "0.35.5",
     "tailwindcss": "4.3.3",
-    "typescript": "5.9.3",
-    "sharp": "0.35.5"
+    "typescript": "5.9.3"
   }
 }

@@ -1,11 +1,15 @@
 "use client";
 import Image from "next/image";
-import { ArrowDown, ArrowUpRight, Clock3, MapPin, Phone } from "lucide-react";
+import Link from "next/link";
+import { ArrowDown, ArrowUpRight, CalendarPlus, Clock3, Map, MapPin, Share2 } from "lucide-react";
 import { useRef, type CSSProperties, type Ref } from "react";
 import { useInvitationMotion } from "@/lib/use-invitation-motion";
 import {
+  calendarFileUrl,
+  coupleNames,
+  eventsInOrder,
+  formatIst,
   invitation,
-  maker,
   venueSearchUrl,
   type InvitationEvent,
   type InvitationPhoto,
@@ -15,6 +19,8 @@ import { HomaFire, Mandala, RoyalDivider } from "./temple-ornaments";
 import { SwayingToran } from "./swaying-toran";
 import { Countdown } from "./countdown";
 import { CoupleCartoon } from "./couple-cartoon";
+import { CelebrationTimeline } from "./celebration-timeline";
+import { MakerCredit } from "./maker-credit";
 
 // Watercolor corners cut from the family's floral card by scripts/extract-floral-art.ts.
 const floralCorners = [
@@ -23,6 +29,12 @@ const floralCorners = [
   { name: "bottom-left", width: 470, height: 620 },
   { name: "bottom-right", width: 466, height: 460 },
 ];
+
+// The mandap behind the names; the cover warms this exact image while the doors are closed.
+export const heroArt = {
+  src: "/images/wedding-homa-mandap.webp",
+  sizes: "(max-width: 800px) 100vw, 900px",
+};
 
 // Scales and offsets the photo so only its crop box fills the frame.
 function cropStyle({ width, height, crop }: InvitationPhoto): CSSProperties {
@@ -99,15 +111,8 @@ function FamilyCard({ person, side }: { person: InvitationPerson; side: "groom" 
 }
 
 function Celebration({ event, dark = false }: { event: InvitationEvent; dark?: boolean }) {
-  const date = new Date(event.date);
-  const month = new Intl.DateTimeFormat("en-GB", {
-    month: "short",
-    timeZone: "Asia/Kolkata",
-  }).format(date);
-  const day = new Intl.DateTimeFormat("en-GB", {
-    weekday: "long",
-    timeZone: "Asia/Kolkata",
-  }).format(date);
+  const month = formatIst(event.date, { month: "short" });
+  const day = formatIst(event.date, { weekday: "long" });
   return (
     <section
       id={event.id}
@@ -131,14 +136,9 @@ function Celebration({ event, dark = false }: { event: InvitationEvent; dark?: b
         <RoyalDivider light={dark} />
         <div className="occasion-card" data-reveal="">
           <div className="occasion-calendar" lang="en">
-            <span>
-              {new Intl.DateTimeFormat("en-GB", {
-                day: "numeric",
-                timeZone: "Asia/Kolkata",
-              }).format(date)}
-            </span>
+            <span>{formatIst(event.date, { day: "numeric" })}</span>
             <strong>{month}</strong>
-            <small>{date.getFullYear()}</small>
+            <small>{formatIst(event.date, { year: "numeric" })}</small>
           </div>
           <div className="occasion-time">
             <p lang="en">{event.englishTitle}</p>
@@ -180,6 +180,10 @@ function Celebration({ event, dark = false }: { event: InvitationEvent; dark?: b
             <ArrowUpRight size={16} />
           </a>
           <p className="map-caption">வரைபடத்தில் தேடுக</p>
+          <a href={calendarFileUrl(event)} className="save-date" download>
+            <CalendarPlus size={15} />
+            <span lang="en">Add to calendar</span>
+          </a>
         </div>
       </div>
     </section>
@@ -201,17 +205,17 @@ export function InvitationDetails({
     <article
       ref={article}
       className="royal-invitation"
-      aria-label="Vignesh and Sandhya wedding invitation"
+      aria-label={coupleNames.replace("&", "and") + " wedding invitation"}
     >
       <section className="royal-hero" aria-label="The beginning of our forever">
         <div className="hero-art">
           <Image
-            src="/images/wedding-homa-mandap.webp"
+            src={heroArt.src}
             alt="Traditional Tamil wedding mandap with flower garlands, brass lamps and a glowing sacred fire in a homa kundam"
             fill
             loading="eager"
             fetchPriority="high"
-            sizes="(max-width: 800px) 100vw, 900px"
+            sizes={heroArt.sizes}
           />
           <HomaFire />
         </div>
@@ -236,9 +240,10 @@ export function InvitationDetails({
               {invitation.groom.name} <span>&</span> {invitation.bride.name}
             </p>
             <p className="hero-date" lang="en">
-              12 NOVEMBER 2026 · KANGEYAM
+              {formatIst(eventsInOrder[0].date, { day: "numeric", month: "long", year: "numeric" })}{" "}
+              · {invitation.place.split(" · ")[0]}
             </p>
-            {reception && <Countdown date={reception.date} />}
+            <Countdown />
           </div>
         </div>
         <a href="#families" className="discover-link" lang="en">
@@ -288,6 +293,7 @@ export function InvitationDetails({
           </div>
         </div>
       </section>
+      <CelebrationTimeline />
       {wedding && <Celebration event={wedding} />}
       {reception && <Celebration event={reception} dark />}
       <section className="invitation-verses" aria-labelledby="welcome-verses-title">
@@ -305,7 +311,7 @@ export function InvitationDetails({
             <figure className="couple-photo">
               <Image
                 src="/images/couple.webp"
-                alt="Vignesh and Sandhya in wedding attire with jasmine and rose garlands, greeting with folded hands before a golden flower-decked mandap"
+                alt="Vignesh and Sandhiya in wedding attire with jasmine and rose garlands, greeting with folded hands before a golden flower-decked mandap"
                 width={1024}
                 height={1536}
                 sizes="(max-width: 900px) min(100vw, 400px), 460px"
@@ -326,32 +332,44 @@ export function InvitationDetails({
           </div>
         </div>
       </section>
+      <section className="plan-visit" aria-labelledby="plan-visit-title">
+        <p className="eyebrow ornate-eyebrow" lang="en" data-reveal="">
+          Before you set out
+        </p>
+        <h2 id="plan-visit-title" className="section-title" lang="en" data-reveal="">
+          Plan your visit
+        </h2>
+        <RoyalDivider />
+        <div className="plan-grid">
+          <Link href="/venues" className="plan-card" data-reveal="">
+            <Map size={22} />
+            <strong lang="en">Venues &amp; maps</strong>
+            <span>இடங்களும் வழிகளும்</span>
+          </Link>
+          <div className="plan-card plan-card-dates" data-reveal="">
+            <CalendarPlus size={22} />
+            <strong lang="en">Save the dates</strong>
+            <span className="plan-links">
+              {eventsInOrder.map((event) => (
+                <a key={event.id} href={calendarFileUrl(event)} download lang="en">
+                  {event.englishTitle.replace("Wedding ", "")} ·{" "}
+                  {formatIst(event.date, { day: "numeric", month: "short" })}
+                </a>
+              ))}
+            </span>
+          </div>
+          <Link href="/share" className="plan-card" data-reveal="">
+            <Share2 size={22} />
+            <strong lang="en">Share the invitation</strong>
+            <span>அழைப்பிதழைப் பகிர்க</span>
+          </Link>
+        </div>
+      </section>
       <footer className="royal-finale" data-reveal="">
         <p className="finale-tamil">{invitation.welcome}</p>
         <p className="finale-family">{invitation.closing}</p>
       </footer>
-      <div className="maker-credit" lang="en">
-        <Image
-          className="maker-logo"
-          src="/images/mecatronix-logo.webp"
-          alt="Mecatronix logo"
-          width={155}
-          height={192}
-          sizes="48px"
-        />
-        <div className="maker-text">
-          <span className="maker-eyebrow">Designed &amp; crafted by</span>
-          <strong aria-label={maker.name}>{maker.brand}</strong>
-          <span className="maker-company">
-            Software Development<span className="maker-dot"> · </span>
-            <span className="maker-city">{maker.city}</span>
-          </span>
-          <a className="maker-phone" href={"tel:" + maker.tel}>
-            <Phone size={12} />
-            {maker.phone}
-          </a>
-        </div>
-      </div>
+      <MakerCredit />
     </article>
   );
 }

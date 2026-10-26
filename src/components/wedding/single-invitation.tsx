@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { getImageProps } from "next/image";
 import { RotateCcw } from "lucide-react";
+import { showerFlowers } from "@/lib/flower-shower";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { InvitationCover } from "./invitation-cover";
-import { InvitationDetails } from "./invitation-details";
+import { heroArt, InvitationDetails } from "./invitation-details";
 import { WeddingMusic, type WeddingMusicHandle } from "./wedding-music";
 
 // Every visit begins at the closed temple doors; a tap opens them slowly and starts the song.
 const openingDuration = 8000;
+// Petals fall while the doors are nearly open, so the shower meets the names as they appear.
+const showerAt = 0.7;
 export function SingleInvitation({ song }: { song: string | undefined }) {
   const [view, setView] = useState<"cover" | "opening" | "details">("cover");
   const heading = useRef<HTMLHeadingElement>(null);
@@ -19,7 +23,11 @@ export function SingleInvitation({ song }: { song: string | undefined }) {
   useEffect(() => {
     if (view !== "opening") return;
     const timer = setTimeout(() => setView("details"), reduce ? 80 : openingDuration);
-    return () => clearTimeout(timer);
+    const shower = reduce ? undefined : setTimeout(showerFlowers, openingDuration * showerAt);
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(shower);
+    };
   }, [view, reduce]);
   useEffect(() => {
     if (view === "details") {
@@ -32,6 +40,29 @@ export function SingleInvitation({ song }: { song: string | undefined }) {
       document.body.style.overflow = previous;
     };
   }, [view]);
+  // While the doors are still closed, fetch the mandap artwork at low priority so it is
+  // already cached when they open. The same srcset and sizes pick the same file.
+  useEffect(() => {
+    const { props } = getImageProps({
+      src: heroArt.src,
+      alt: "",
+      fill: true,
+      sizes: heroArt.sizes,
+    });
+    const warm = () => {
+      const image = new window.Image();
+      image.fetchPriority = "low";
+      image.sizes = props.sizes ?? "";
+      image.srcset = props.srcSet ?? "";
+      image.src = props.src;
+    };
+    if ("requestIdleCallback" in window) {
+      const id = requestIdleCallback(warm, { timeout: 2500 });
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(warm, 1200);
+    return () => clearTimeout(id);
+  }, []);
 
   function open() {
     if (view !== "cover") return;
