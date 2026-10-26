@@ -20,6 +20,8 @@ export interface InvitationEvent {
   title: string;
   englishTitle: string;
   date: string;
+  // When the printed time window closes; used by the countdown and calendar files.
+  end: string;
   dateLabel: string;
   day: string;
   time: string;
@@ -34,6 +36,7 @@ export interface InvitationConfig {
   message: string;
   closing: string;
   monogram: string;
+  place: string;
   welcomeVerses: { title: string; lines: string[] };
   groom: InvitationPerson;
   bride: InvitationPerson;
@@ -48,6 +51,7 @@ export const invitation: InvitationConfig = {
     "தாங்கள் தங்கள் சுற்றமும் நட்பும் சூழ வருகைதந்து மணமக்களை வாழ்த்தியருள அன்புடன் அழைக்கிறோம்.",
   closing: "இரு இல்லம் இணையும் இனிய அழைப்பு",
   monogram: "V & S",
+  place: "Kangeyam · Tamil Nadu",
   welcomeVerses: {
     title: "தங்கள் நல்வரவை அன்புடன் விரும்பும்",
     lines: [
@@ -80,7 +84,7 @@ export const invitation: InvitationConfig = {
   },
   bride: {
     name: "S. சந்தியா",
-    englishName: "Sandhya",
+    englishName: "Sandhiya",
     photo: {
       src: "/images/bride.webp",
       alt: "மணமகள் S. சந்தியா",
@@ -98,6 +102,7 @@ export const invitation: InvitationConfig = {
       title: "திருமண வரவேற்பு",
       englishTitle: "Wedding reception",
       date: "2026-11-12T18:00:00+05:30",
+      end: "2026-11-12T19:00:00+05:30",
       dateLabel: "12.11.2026",
       day: "வியாழக்கிழமை",
       time: "மாலை 6.00 – 7.00 மணி",
@@ -109,6 +114,7 @@ export const invitation: InvitationConfig = {
       title: "சுபமுகூர்த்தம்",
       englishTitle: "Wedding ceremony",
       date: "2026-11-13T04:45:00+05:30",
+      end: "2026-11-13T05:45:00+05:30",
       dateLabel: "13.11.2026",
       day: "வெள்ளிக்கிழமை",
       time: "அதிகாலை 4.45 – 5.45 மணி",
@@ -130,9 +136,119 @@ export const maker = {
 // Put the family's "Idicha Pacharisi" MP3 at public/audio/idicha-pacharisi.mp3; until then
 // the site is silent and the music button stays hidden.
 export const weddingSongs = ["/audio/idicha-pacharisi.mp3"];
+export const coupleNames = invitation.groom.englishName + " & " + invitation.bride.englishName;
+
+// Events in the order they happen: the reception evening, then the dawn muhurtham.
+export const eventsInOrder = [...invitation.events].sort(
+  (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+);
+
+// The first event that has not yet ended, so the countdown moves on after the reception.
+export function upcomingEvent(now = Date.now()) {
+  return eventsInOrder.find((event) => new Date(event.end).getTime() > now) ?? null;
+}
+
+// Every date on the invitation is shown in Indian Standard Time, wherever the guest is.
+export function formatIst(date: string, options: Intl.DateTimeFormatOptions) {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", ...options }).format(
+    new Date(date),
+  );
+}
+
 export function venueSearchUrl(event: InvitationEvent) {
   return (
     "https://www.google.com/maps/search/?api=1&query=" +
     encodeURIComponent(event.venue + ", " + event.address)
   );
+}
+export function venueEmbedUrl(event: InvitationEvent) {
+  return (
+    "https://www.google.com/maps?output=embed&q=" +
+    encodeURIComponent(event.venue + ", " + event.address)
+  );
+}
+
+// The message sent with the link from the share page, in the card's own Tamil wording.
+export function shareMessage(url: string) {
+  return [
+    "💐 " + invitation.welcome + " 💐",
+    coupleNames,
+    ...eventsInOrder.map(
+      (event) =>
+        event.title +
+        ": " +
+        event.dateLabel +
+        " · " +
+        event.time +
+        " · " +
+        event.venue +
+        ", " +
+        event.address,
+    ),
+    url,
+  ].join("\n");
+}
+
+// The .ics file is served by src/app/calendar/[event]/route.ts.
+export function calendarFileUrl(event: InvitationEvent) {
+  return "/calendar/" + event.id;
+}
+const utcStamp = (date: string) =>
+  new Date(date)
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
+const calendarTitle = (event: InvitationEvent) => coupleNames + " — " + event.englishTitle;
+export function googleCalendarUrl(event: InvitationEvent) {
+  const query = new URLSearchParams({
+    action: "TEMPLATE",
+    text: calendarTitle(event),
+    dates: utcStamp(event.date) + "/" + utcStamp(event.end),
+    details: event.title + " · " + event.day + " · " + event.time,
+    location: event.venue + ", " + event.address,
+  });
+  return "https://calendar.google.com/calendar/render?" + query;
+}
+export function calendarFile(event: InvitationEvent) {
+  // Text values escape backslashes, semicolons, commas and newlines (RFC 5545 §3.3.11).
+  const text = (value: string) => value.replace(/[\\;,]/g, "\\$&").replace(/\n/g, "\\n");
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Mecatronix//Wedding Invitation//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    "UID:" + event.id + "-" + utcStamp(event.date) + "@vignesh-sandhiya.wedding",
+    "DTSTAMP:" + utcStamp(event.date),
+    "DTSTART:" + utcStamp(event.date),
+    "DTEND:" + utcStamp(event.end),
+    "SUMMARY:" + text(calendarTitle(event) + " (" + event.title + ")"),
+    "LOCATION:" + text(event.venue + ", " + event.address),
+    "DESCRIPTION:" + text(event.note ?? event.title + " · " + event.day + " · " + event.time),
+    "BEGIN:VALARM",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:" + text(calendarTitle(event)),
+    "TRIGGER:-PT3H",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  return lines.map(foldLine).join("\r\n") + "\r\n";
+}
+// Calendar lines fold at 75 bytes without splitting a Tamil character.
+function foldLine(line: string) {
+  const encoder = new TextEncoder();
+  let result = "";
+  let width = 0;
+  for (const char of line) {
+    const size = encoder.encode(char).length;
+    if (width + size > 75) {
+      result += "\r\n ";
+      width = 1;
+    }
+    result += char;
+    width += size;
+  }
+  return result;
 }

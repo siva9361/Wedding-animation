@@ -29,7 +29,7 @@ await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
 await page.waitForTimeout(900);
 await page.screenshot({ path: ".qa/invitation-details-final.png", fullPage: true });
 await page.setViewportSize({ width: 375, height: 812 });
-await page.evaluate(() => sessionStorage.removeItem("vignesh-sandhya:temple-invitation:v2"));
+await page.evaluate(() => sessionStorage.removeItem("vignesh-sandhiya:temple-invitation:v2"));
 await page.reload();
 await page.evaluate(() => document.fonts.ready);
 await page
@@ -38,7 +38,7 @@ await page
   .evaluate((element) => (element as HTMLImageElement).decode());
 await page.screenshot({ path: ".qa/invitation-cover-mobile.png" });
 await page.getByRole("button", { name: /Open invitation/i }).click();
-await page.getByRole("heading", { name: "Vignesh Weds Sandhya" }).waitFor();
+await page.getByRole("heading", { name: "Vignesh Weds Sandhiya" }).waitFor();
 await expect(page.getByRole("region", { name: "Wedding invitation cover" })).toHaveCount(0, {
   timeout: 10000,
 });
